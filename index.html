@@ -9,11 +9,41 @@
 		<meta property="og:title" content="SJEGINK">
 		<meta property="og:description" content="SJEGINK">
 		<title>SJEGINK</title>
-		<link type="text/css" href="/inc/reset.css" rel="stylesheet"/>
+		<link type="text/css" href="inc/reset.css" rel="stylesheet"/>
+		<link type="text/css" href="inc/bootstrap/bootstrap.min.css" rel="stylesheet"/>
+		<link type="text/css" href="inc/local/local.css" rel="stylesheet"/>
 		<script type="text/javascript"></script>
-		<script src="/inc/jquery/jquery-3.6.0.min.js"></script>
+		<script src="inc/jquery/jquery-3.6.0.min.js"></script>
+		<script src="inc/local/local.js"></script>
 	</head>
-	<body>
-		Hello World!
+	<body class="h-100 d-flex flex-column">
+
+		<section class="x_search  my-auto d-flex flex-column py-1">
+			<header class="x_search__title  mx-auto py-1">Search your own ideas!</header>
+			<main class="x_search__body  mx-auto py-1">
+				<div class="x_search__row  d-flex py-1" data-vendor="naver">
+					<a class="x_search__logo  mx-1" tabindex="-1" href="https://www.naver.com"
+						aria-label="Naver"></a>
+					<input class="x_search__input"/>
+				</div>
+				<div class="x_search__row  d-flex py-1" data-vendor="google">
+					<a class="x_search__logo  mx-1" tabindex="-1" href="https://www.google.com"
+						aria-label="Google"></a>
+					<input class="x_search__input"/>
+				</div>
+			</main>
+			<footer class="x_search__footer py-1">
+				<p class="x_search__footer_text  text-center"></p>
+			</footer>
+		</section>
+
+		<nav class="d-flex">
+			<a class="col col-4 col-sm-2 p-2" role="menu-item">
+				<div class="ratio ratio-1x1">
+					<button type="button" class="btn btn-outline-dark">★</span>
+				</div>
+			</a>
+		</nav>
+
 	</body>
 </html>
