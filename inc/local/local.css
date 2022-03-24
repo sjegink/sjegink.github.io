@@ -1,4 +1,5 @@
 html { width:100%; height:100%; }
+body { font-family:'Arial'; }
 
 .x_search {
 }
@@ -27,6 +28,8 @@ html { width:100%; height:100%; }
 	box-sizing:border-box;
 	padding:5px;
 	outline:none;
+	font-size:13px;
+    font-family:'돋움';
 }
 .x_search__row.is-active[data-vendor="naver"] > .x_search__input {
 	border: 2px solid #17cb34;
