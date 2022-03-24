@@ -1,6 +1,11 @@
 html { width:100%; height:100%; }
 body { font-family:'Arial'; }
 
+body.is-inactive::after {}
+body.is-inactive {
+	filter:blur(1px);
+}
+
 .x_search {
 }
 .x_search__title {
