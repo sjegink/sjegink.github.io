@@ -17,6 +17,11 @@ window.searchBoxMgr = new class SearchBoxManager{
 			})
 			.on('keydown', ev=>{
 				if(this._getActiveInputBox()==null){
+					if(ev.keyCode==191){
+						// slash(/) means Google!
+						this._setInputBoxFocus(1);
+						ev.preventDefault();
+					}else
 					if(this._isVisualKey(ev.keyCode)){
 						this._setInputBoxFocus(0);
 					}
