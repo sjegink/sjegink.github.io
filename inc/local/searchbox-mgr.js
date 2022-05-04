@@ -56,7 +56,7 @@ window.searchBoxMgr = new class SearchBoxManager{
 
 	_draw(){
 		const $section = $('<section>').addClass("x_search  my-auto d-flex flex-column py-1").html(`
-			<header class="x_search__title  mx-auto py-1">Search your own ideas!</header>
+			<header class="x_search__title  mx-auto py-1">Search for your own ideas!</header>
 			<main class="x_search__body  mx-auto py-1">
 				<div class="x_search__row  d-flex py-1" data-vendor="naver">
 					<a class="x_search__logo  mx-1" tabindex="-1" href="https://www.naver.com"
