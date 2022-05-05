@@ -24,7 +24,7 @@ window.mainMenuMgr = new class MainMenuManager{
 		}].map(menuItemInfo=>{
 			let isSelected = PAGENAME_CURRENT == menuItemInfo.pageName;
 
-			return $('<a>').addClass("col col-4 col-sm-3 col-md-2 col-xxl-1 p-2").attr({
+			return $('<a>').addClass("col col-3 col-sm-2 col-xxl-1 p-2").attr({
 				'role': "menuitem",
 				'aria-label': menuItemInfo.label,
 				'href': isSelected ? null : `${menuItemInfo.pageName}.html`,
