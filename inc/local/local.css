@@ -9,6 +9,9 @@ body.is-inactive {
 .tint_to_sky {
 	filter: brightness(0.5) sepia(999) saturate(999) hue-rotate(200deg) invert(1) saturate(3) brightness(0.7) invert(1);
 }
+.tint_to_magenta {
+	filter: brightness(0.5) sepia(999) saturate(999) hue-rotate(200deg) invert(1) saturate(3) brightness(0.7) invert(1);
+}
 
 .btn_selected {
 	box-shadow: inset 0px 0px 16px #07f;
