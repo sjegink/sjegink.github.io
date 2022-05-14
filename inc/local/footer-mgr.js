@@ -10,44 +10,28 @@ window.footerMgr = new class FooterManager{
 
 	_draw(){
 		const PAGENAME_CURRENT = location.pathname.replace(/.*\//g,"").replace(/\..*/g,"")
-		const $nav = $('<nav>').addClass("d-flex flex-wrap");
-		$nav.append([{
-			label: "첫 화면",
+		const $footer = $('<footer>').addClass("text-center my-4");
+		$('<nav>').addClass("small").append([{
+			label: "Home",
 			pageName: "index",
-			iconName: "",
-			tintName: "",
 		},{
-			label: "검색",
+			label: "Search",
 			pageName: "search",
-			iconName: "web",
-			tintName: "sky",
 		}].map(menuItemInfo=>{
 			let isSelected = PAGENAME_CURRENT == menuItemInfo.pageName;
+			if(isSelected) return null;
 
-			return $('<a>').addClass("col col-3 col-sm-2 col-xxl-1 p-2").attr({
+			return $('<a>').addClass("").attr({
 				'role': "menuitem",
 				'aria-label': menuItemInfo.label,
 				'href': isSelected ? null : `${menuItemInfo.pageName}.html`,
 				'tabindex': isSelected?"-1":null,
 			}).append([
-				$('<div>').addClass("ratio ratio-1x1 bg-white").append([
-					$('<button>').attr({
-						'type': "button",
-					}).addClass(`
-						btn btn-outline-dark
-						d-flex align-items-center justify-content-center
-						${isSelected?"btn_selected":""}
-					`).append([
-						!menuItemInfo.iconName ? null :
-						$('<img>').addClass(`w-100 tint_to_${menuItemInfo.tintName}`).attr({
-							'src': `res/fg/${menuItemInfo.iconName}.svg`,
-						}),
-					]),
-				]),
+				$('<span>').addClass("").html(menuItemInfo.label),
 			]);
-		}));
-		$('body').children('nav').remove();
-		$('body').append($nav);
+		})).appendTo($footer);
+		$('body').children('footer').remove();
+		$('body').append($footer);
 		history.replaceState(history.state, `${PAGENAME_CURRENT.toUpperCase()} :: SJEGINK`);
 	}
 };
