@@ -3,7 +3,7 @@ body { font-family:'Arial'; }
 
 body.is-inactive::after {}
 body.is-inactive {
-	filter:blur(1px);
+	opacity: 0.4;
 }
 
 .tint_to_sky {
