@@ -1,6 +1,6 @@
 "use strict";
 
-window.mainMenuMgr = new class MainMenuManager{
+window.footerMgr = new class FooterManager{
 	constructor(){
 		$(document)
 			.ready(()=>{
