@@ -11,7 +11,7 @@ window.footerMgr = new class FooterManager{
 	_draw(){
 		const PAGENAME_CURRENT = location.pathname.replace(/.*\//g,"").replace(/\..*/g,"")
 		const $footer = $('<footer>').addClass("text-center my-4");
-		$('<nav>').addClass("small").append([{
+		$('<nav>').addClass("small d-flex flex-wrap justify-content-center").append([{
 			label: "Home",
 			pageName: "index",
 		},{

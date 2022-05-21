@@ -7,6 +7,10 @@ body { font-family:'Arial'; }
 	}
 }
 
+footer a {
+	margin:5px;
+}
+
 .tint_to_sky {
 	filter: brightness(0.5) sepia(999) saturate(999) hue-rotate(200deg) invert(1) saturate(3) brightness(0.7) invert(1);
 }
