@@ -6,6 +6,7 @@
 }
 
 .x_search__row {
+	position:relative;
 }
 
 .x_search__logo {
@@ -38,6 +39,32 @@
 .x_search__row.is-active[data-vendor="google"] > .x_search__input {
 	border: 2px solid #4285f4;
 }
+
+.x_search__tooltip {
+	position:absolute;
+	bottom:100%;
+	left:100px;
+	margin-left:.5rem;
+}
+.x_search__row:last-of-type > .x_search__tooltip {
+	top:100%;
+	bottom:unset;
+}
+.x_search__tooltip-visual {
+	width:200px;
+	border-radius:5px;
+	border:1px solid #999;
+	background-color:#FFF9;
+}
+.x_search__tooltip-keyicon {
+	width:32px;
+	filter:brightness(0);
+}
+.x_search__tooltip-text {
+	margin:auto 0;
+	font-size:13;
+}
+
 
 .x_search__footer_text {
 	font-size:12px; color:#666;

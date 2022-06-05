@@ -56,6 +56,15 @@ window.searchBoxMgr = new class SearchBoxManager{
 					default:
 						// console.debug(`keyCode == ${ev.keyCode}`);
 				}
+			})
+			.on('keydown', '.x_search__input', ev=>{
+				this.applyForQwerty(ev);
+			})
+			.on('focus change keydown keyup paste', '.x_search__input', ev=>{
+				this._checkValueChange(ev);
+			})
+			.on('blur', '.x_search__input', ev=>{
+				this.attachTooltipForQwerty(null);
 			});
 	}
 
@@ -82,6 +91,48 @@ window.searchBoxMgr = new class SearchBoxManager{
 		`);
 		$('body').children('section').remove();
 		$('body').prepend($section);
+	};
+
+	onValueChange($inp, valueBefore, valueAfter){
+		if(/[a-z가-힣ㄱ-ㅣ]/i.test(valueAfter)){
+			this.attachTooltipForQwerty($inp);
+		}else{
+			this.attachTooltipForQwerty(nul);
+		}
+	};
+
+	attachTooltipForQwerty($inp){
+		const className = "x_search__tooltip";
+		const $tooltip = $(`.${className}`).length ?
+			$(`.${className}`) :
+			$('<div>').addClass(className);
+		$tooltip.children().remove();
+		if(!(($inp||null) instanceof jQuery)){
+			return;
+		}
+		const display = this._valueInputToDisplayString($inp);
+			
+		$tooltip.appendTo($inp.parent()).html(`
+			<div class="x_search__tooltip-visual d-flex">
+				<img class="x_search__tooltip-keyicon" src="./res/fg/keyboard_item_esc.svg">
+				<div class="x_search__tooltip-text">${display}</div>
+			</div>
+		`);
+	};
+
+	applyForQwerty(ev){
+		const $inp = $(ev.target);
+		if(ev.keyCode==27 && $inp.data('value-state')==="1"){
+			$inp.val(this._valueInputToDisplayString($inp));
+			const VI = $inp.data('value-input').match(/../g);
+			VI.forEach((pair,i)=>{
+				if(pair[0]) VI[i] = (3-Number(pair[0])) + pair[1];
+			});
+			$inp.data('value-input', VI.join(""));
+			this.attachTooltipForQwerty($inp);
+			ev.preventDefault();
+			ev.stopImmediatePropagation();
+		}
 	}
 
 	goIntegratedSearch($inp, isNewWindow){
@@ -195,5 +246,62 @@ window.searchBoxMgr = new class SearchBoxManager{
 					"검색",
 				]);
 		}
+	};
+
+	_checkValueChange(ev){
+		const $inp = $(ev.target);
+		$(()=>{
+			const valueBefore = $inp.data('value-before');
+			if(!valueBefore) $inp.data('value-input', "");
+			const valueAfter = $inp.val();
+			if(!valueAfter){
+				$inp.data('value-input', "");
+				$inp.data('value-state', null);
+				this.attachTooltipForQwerty(null);
+			}else if($inp.data('value-state')==="-1"){
+				// value state = 0:빈칸 / 1:내용있음(빈칸에서앞만보고달려옴) / -1:역방향감지(유저가_상황인식했을거라)
+			}else{
+				let isValid = true;
+				isValid &= /^key/.test(ev.type) && ![0x08,0x1b, 0x23,0x24, 0x25,0x26,0x27,0x28].includes(ev.keyCode);// BS,ESC, HM,EN, LF,UP,RT,DN
+				isValid &= ev.type!='change' || valueBefore===valueAfter;
+				if(!isValid){
+					$inp.data('value-state', "-1");
+					this.attachTooltipForQwerty(null);
+					return;
+				}
+				$inp.data('value-state', "1");
+				if(valueBefore !== valueAfter){
+					let lastChar = valueAfter.substr(-1);
+					let isLastKorean = KorUtil.isKorean(valueAfter.substr(-1));
+					let lastKeyType = /[a-z]/i.test(lastChar) ? 1: isLastKorean ? 2 : 0;
+					lastChar = KorUtil.qwerty(lastChar).substr(-1)[ev.shiftKey?'toUpperCase':'toLowerCase']();
+					$inp.data('value-before', valueAfter);
+					$inp.data('value-input', ($inp.data('value-input')||"") + [
+						lastKeyType, // 0:기타 / 1:영어모드 / 2:한글모드
+						lastChar,
+					].join(""));
+					this.onValueChange($inp, valueBefore, valueAfter);
+				}
+			}
+		});
+	};
+
+	_valueInputToDisplayString($inp){
+		let display = "", koStack = "";
+		($inp.data('value-input')||"").match(/../g).forEach(([type,char])=>{
+			if(type==1){
+				koStack += char;
+			}else{
+				if(koStack){
+					display += KorUtil.koreanify(koStack);
+					koStack = "";
+				}
+				display += char;
+			}
+		});
+		if(koStack){
+			display += KorUtil.koreanify(koStack);
+		}
+		return display;
 	};
 };
