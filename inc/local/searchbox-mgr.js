@@ -198,10 +198,7 @@ window.searchBoxMgr = new class SearchBoxManager{
 				spans.push($('<span>').text(`[${keyLabel}] `).css({'color':"#07B"}));
 			});
 			strs.map((str,i)=>{
-				spans.push($('<span>').text(str).css(i%2 ? {
-					'font-weight': "bolder",
-					'filter': "brightness(0)",
-				}:{}));
+				spans.push($('<span>').text(str).addClass(i%2 ? "accent": ""));
 			});
 			$('.x_search__footer_text').html("").append(spans);
 		}
