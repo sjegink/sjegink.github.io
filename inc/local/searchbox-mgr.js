@@ -245,10 +245,33 @@ window.searchBoxMgr = new class SearchBoxManager{
 		}
 	};
 
+	_checkValueChange__evQueue = [];
 	_checkValueChange(ev){
-		const $inp = $(ev.target);
-		$(()=>{
+		const KEY_TYPE = { KO:2, EN:1, ETC:0 };
+		console.log(ev);
+		if(ev != null){
+			const $inp = $(ev.target);
+			if(!$inp.val()){
+				$inp.data('value-before', "");
+				$inp.data('value-input', "");
+				$inp.data('value-state', null);
+				this.attachTooltipForQwerty(null);
+			}
+			console.log('♣ TRIGGED', $inp.val(), $inp.data('value-before'), $inp.data('value-input'), $inp.data('value-state'));
+			clearTimeout(this._checkValueChange__asyncReserved);
+			this._checkValueChange__evQueue.push(ev);
+			ev.value = ev;
+			this._checkValueChange__asyncReserved = setTimeout(()=>this._checkValueChange(null),10);
+			return;
+		}
+		if(!this._checkValueChange__evQueue.length){
+			$inp.data('value-input', "");
+			$inp.data('value-state', null);
+			this.attachTooltipForQwerty(null);
+		}else while(ev = this._checkValueChange__evQueue.shift()){
+			const $inp = $(ev.target);
 			const valueBefore = $inp.data('value-before');
+			console.log('♣ RECALLED', $inp.val(), $inp.data('value-before'), $inp.data('value-input'), $inp.data('value-state'));
 			if(!valueBefore) $inp.data('value-input', "");
 			const valueAfter = $inp.val();
 			if(!valueAfter){
@@ -258,29 +281,66 @@ window.searchBoxMgr = new class SearchBoxManager{
 			}else if($inp.data('value-state')==="-1"){
 				// value state = 0:빈칸 / 1:내용있음(빈칸에서앞만보고달려옴) / -1:역방향감지(유저가_상황인식했을거라)
 			}else{
+				const KEYS = { BS:0x08, ESC:0x1b, HOME:0x23,END:0x24, LF:0x25,UP:0x26,RT:0x27,DN:0x28 };
+				const KEYS_DISALLOWED = (({ESC,HOME,END,LF,UP,RT,DN})=>({ESC,HOME,END,LF,UP,RT,DN}))(KEYS); // those make assistant be disabled
 				let isValid = true;
-				isValid &= /^key/.test(ev.type) && ![0x08,0x1b, 0x23,0x24, 0x25,0x26,0x27,0x28].includes(ev.keyCode);// BS,ESC, HM,EN, LF,UP,RT,DN
-				isValid &= ev.type!='change' || valueBefore===valueAfter;
+				let isChanged = valueBefore!==valueAfter;
+				isValid &= /^key/.test(ev.type) && !Object.values(KEYS_DISALLOWED).includes(ev.keyCode);
+				isValid &= ev.type!='change' || !isChanged;
 				if(!isValid){
 					$inp.data('value-state', "-1");
 					this.attachTooltipForQwerty(null);
 					return;
 				}
 				$inp.data('value-state', "1");
-				if(valueBefore !== valueAfter){
+				if(ev.keyCode===KEYS.BS && valueBefore){
+					let lengthShorter = valueBefore.length<valueAfter.length ? valueBefore.length : valueAfter.length;
+					let lengthCorrect;
+					for(let i=0; i<lengthShorter; i++){
+						lengthCorrect = i;
+						if(valueBefore.charAt(i) !== valueAfter.charAt(i)) break;
+					}
+					if(valueAfter.length < valueBefore.length){
+						const VAL_INPUT_AFTER = KorUtil.qwerty(valueAfter);
+						const LEN_INPUT_AFTER = VAL_INPUT_AFTER.length;
+						const LEN_INPUT_SHORTER = KorUtil.qwerty(valueBefore.substring(0, lengthShorter)).length;
+						const LEN_DATA_SHORTER = LEN_INPUT_SHORTER * 2;
+						let data = $inp.data('value-input');
+						data = data.substring(0, LEN_DATA_SHORTER);
+						let lastChar = valueAfter.replace(/[^가-힣ㄱ-ㅣa-z]*$/i,"").substr(-1);
+						let isLastKorean = KorUtil.isKorean(valueAfter.substr(-1));
+						let lastKeyType = /[a-z]/i.test(lastChar) ? KEY_TYPE.EN: isLastKorean ? KEY_TYPE.KO : KEY_TYPE.ETC;
+						lastChar = KorUtil.qwerty(lastChar).substr(-1)[ev.shiftKey?'toUpperCase':'toLowerCase']();
+						for(let i=LEN_INPUT_SHORTER; i<LEN_INPUT_AFTER; i++){
+							data += lastKeyType;
+							data += VAL_INPUT_AFTER.charAt(i)[ev.shiftKey?'toUpperCase':'toLowerCase']();
+							// Frankly, this speculation about IME modes is nonsense.
+							// But, probably, this logic will be executed with only one input.
+							// Therefore, No problem is expected.
+						}
+						$inp.data('value-before', valueAfter);
+						$inp.data('value-input', data);
+						this.onValueChange($inp, valueBefore, valueAfter);
+					}else{
+						// Infact, Users RARELY can make various key inputs be accumulated before this be executed.
+						// So, valueAfter must be shorter than valueBefore.
+						ev.keyCode = null;
+					}
+				}
+				if(ev.keyCode!==KEYS.BS && isChanged){
 					let lastChar = valueAfter.substr(-1);
 					let isLastKorean = KorUtil.isKorean(valueAfter.substr(-1));
-					let lastKeyType = /[a-z]/i.test(lastChar) ? 1: isLastKorean ? 2 : 0;
+					let lastKeyType = /[a-z]/i.test(lastChar) ? KEY_TYPE.EN: isLastKorean ? KEY_TYPE.KO : KEY_TYPE.ETC;
 					lastChar = KorUtil.qwerty(lastChar).substr(-1)[ev.shiftKey?'toUpperCase':'toLowerCase']();
 					$inp.data('value-before', valueAfter);
 					$inp.data('value-input', ($inp.data('value-input')||"") + [
-						lastKeyType, // 0:기타 / 1:영어모드 / 2:한글모드
+						lastKeyType,
 						lastChar,
 					].join(""));
 					this.onValueChange($inp, valueBefore, valueAfter);
 				}
 			}
-		});
+		};
 	};
 
 	_valueInputToDisplayString($inp){
