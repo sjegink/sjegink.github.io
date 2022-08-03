@@ -151,12 +151,16 @@ window.searchBoxMgr = new class SearchBoxManager{
 
 	goTranslationSearch($inp, isNewWindow){
 		let keyword = $inp.val();
-		let url = {
+		const VENDOR_NAME = $inp.parent().data('vendor');
+		const urlByVendor = {
+			_naver: `https://en.dict.naver.com/`,
 			naver: `https://en.dict.naver.com/#/search?query=$0`,
 			google: `https://translate.google.com/?sl=$1&tl=$2&text=$0&op=translate`,
-		}[$inp.parent().data('vendor')];
-		url = url.replace('$0', encodeURIComponent(keyword));
-		if(/[ㄱ-ㅣ가-힣]/.test(keyword)){
+		};
+		let url = urlByVendor[VENDOR_NAME].replace('$0', encodeURIComponent(keyword));
+		if(!keyword && VENDOR_NAME=="naver"){
+			url = urlByVendor._naver;
+		}else if(/[ㄱ-ㅣ가-힣]/.test(keyword)){
 			url = url.replace('$1', "ko").replace('$2', "en");
 		}else{
 			url = url.replace('$1', "en").replace('$2', "ko");
