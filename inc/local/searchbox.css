@@ -1,3 +1,9 @@
+@media(pointer: fine){
+	body.is-inactive {
+		opacity: 0.4;
+	}
+}
+
 .x_search {
 }
 
