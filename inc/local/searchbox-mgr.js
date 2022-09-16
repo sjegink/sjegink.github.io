@@ -58,12 +58,15 @@ window.searchBoxMgr = new class SearchBoxManager{
 				}
 			})
 			.on('keydown', '.x_search__input', ev=>{
+				if(isMobile) return;
 				this.applyForQwerty(ev);
 			})
 			.on('focus change keydown keyup paste', '.x_search__input', ev=>{
+				if(isMobile) return;
 				this._checkValueChange(ev);
 			})
 			.on('blur', '.x_search__input', ev=>{
+				if(isMobile) return;
 				this.attachTooltipForQwerty(null);
 			});
 	}
