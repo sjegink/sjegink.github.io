@@ -78,13 +78,13 @@ window.searchBoxMgr = new class SearchBoxManager{
 				<div class="x_search__row  d-flex py-1" data-vendor="naver">
 					<a class="x_search__logo  mx-1" tabindex="-1" href="https://www.naver.com"
 						aria-label="네이버"></a>
-					<input class="x_search__input"
+					<input class="x_search__input" type="search"
 						aria-label="네이버 검색어 입력"/>
 				</div>
 				<div class="x_search__row  d-flex py-1" data-vendor="google">
 					<a class="x_search__logo  mx-1" tabindex="-1" href="https://www.google.com"
 						aria-label="구글"></a>
-					<input class="x_search__input"
+					<input class="x_search__input" type="search"
 						aria-label="구글 검색어 입력"/>
 				</div>
 			</main>
