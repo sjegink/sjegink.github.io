@@ -1,3 +1,154 @@
+:root {
+	--calendar-face-width: 600px;
+	--calendar-face-margin: 20px;
+	--caneldar-face-scale: 2;
+}
+.space {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.calendar {
+	position: relative;
+	width: 100vw;
+	height: 480px;
+	overflow-x: hidden;
+}
+
+.calendar .face {
+	position: absolute;
+	top: 5px;
+	width: var(--calendar-face-width);
+	padding: 5px;
+	background-color: inherit;
+	box-shadow: 1px 2px 4px 2px #0007;
+	transform-origin: top left;
+	transition-duration: 400ms;
+}
+.calendar .face:not(.active) {
+    transform: scale(calc(1 / var(--caneldar-face-scale)));
+	cursor: pointer;
+}
+.calendar .face:not(.active) textarea {
+    pointer-events: none;
+}
+.calendar .face[data-month="-1"] {
+	content: 'LAST MONTH';
+	left: calc(0% + var(--calendar-face-margin) / 2);
+}
+.calendar[data-selected-index="0"] .face[data-month="-1"] {
+	left: calc(50% - (var(--calendar-face-width)) / 2 - var(--calendar-face-margin) - var(--calendar-face-width) / var(--caneldar-face-scale))
+}
+.calendar[data-selected-index="1"] .face[data-month="-1"] {
+	left: calc(100% - var(--calendar-face-margin) / 2 - var(--calendar-face-width) - var(--calendar-face-margin) - var(--calendar-face-width) / var(--caneldar-face-scale) - var(--calendar-face-margin) / 2 - var(--calendar-face-width) / var(--caneldar-face-scale));
+}
+.calendar .face[data-month="0"] {
+	content: 'THIS MONTH';
+	left: calc(50% - var(--calendar-face-width) / 2);
+}
+.calendar[data-selected-index="-1"] .face[data-month="0"] {
+	left: calc(0% + var(--calendar-face-margin) / 2 + var(--calendar-face-width) + var(--calendar-face-margin) );
+}
+.calendar[data-selected-index="1"] .face[data-month="0"] {
+	left: calc(100% - var(--calendar-face-margin) / 2 - var(--calendar-face-width) - var(--calendar-face-margin) - var(--calendar-face-width) / var(--caneldar-face-scale) );
+}
+.calendar .face[data-month="1"] {
+	content: 'NEXT MONTH';
+	left: calc(100% - var(--calendar-face-margin) / 2 - var(--calendar-face-width));
+}
+.calendar[data-selected-index="-1"]  .face[data-month="1"] {
+	left: calc(0% + var(--calendar-face-margin) / 2 + var(--calendar-face-width) + var(--calendar-face-margin) + var(--calendar-face-width) / var(--caneldar-face-scale) + var(--calendar-face-margin) / 2 );
+}
+.calendar[data-selected-index="0"]  .face[data-month="1"] {
+	left: calc(50% + var(--calendar-face-width) / 2 + var(--calendar-face-margin));
+}
+
+.calendar .header {
+	text-align: center;
+	padding: 5px;
+}
+.calendar .year {
+	margin: 0;
+	font-size: 80%;
+}
+.calendar .month {
+	margin: 0;
+	font-size: 100%;
+	font-weight: 900;
+}
+
+.calendar .body {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	padding: 5px;
+}
+.calendar .day {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	width: 80px;
+	flex-grow: 1;
+	height: 60px;
+	border: 0 solid #000;
+	border-width: 0 1px 1px 0;
+	padding: 2px 3px;
+	font-size: 60%;
+}
+.calendar .day:nth-child(7n+1) {
+	border-left-width: 1px;
+}
+.calendar .day:nth-child(-n+7){
+	border-top-width: 1px;
+}
+.calendar .day.sunday {
+	color:#F55;
+}
+.calendar .day.saturday {
+	color:#05F;
+}
+.calendar .day.inactive {
+	color:#BBB;
+}
+.calendar .today::after {
+	content:'';
+	position:absolute;
+	top: 0; bottom: 0;
+	left: 0; right: 0;
+	border: 2px solid #F55;
+}
+@media (prefers-color-scheme: dark) {
+	.calendar .day {
+		border-color: #555;
+		color: #BBB;
+	}
+	.calendar .day.sunday {
+		color:#B55;
+	}
+	.calendar .day.saturday {
+		color:#39F;
+	}
+	.calendar .day.inactive {
+		color:#555;
+	}
+}
+
+.calendar .day textarea {
+	border: 0 none;
+	width: 100%;
+	flex-grow: 1;
+	background: transparent;
+	color: #777;
+	resize: none;
+}
+.calendar .face:not(.active) textarea {
+	visibility: hidden;
+}
+
 .clock {
 	position: relative;
 }

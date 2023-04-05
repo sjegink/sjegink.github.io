@@ -18,7 +18,21 @@ window.homeMgr = new class HomeManager{
 		$x.children().remove();
 		// space
 		const $s = $('<div>').addClass("space").appendTo($x);
-		// face-display
+		// calendar-display
+		$('<div>').addClass("calendar").append([
+			$('<div>').attr('data-month',-1).addClass("face"),
+			$('<div>').attr('data-month', 0).addClass("face active"),
+			$('<div>').attr('data-month',+1).addClass("face"),
+		]).attr('data-selected-index',0).appendTo($s).children().each((i,el)=>{
+			this._drawCalendar(i-1);
+			$(el).click(function(ev){
+				if($(this).hasClass("active")) return;
+				$(this).parent().attr('data-selected-index', i-1);
+				$(this).parent().children('.active').removeClass("active");
+				$(this).addClass("active");
+			});
+		});
+		// clock-display
 		$('<div>').addClass("clock").append([
 			$('<div>').addClass("top"),
 			$('<div>').addClass("face"),
@@ -36,6 +50,66 @@ window.homeMgr = new class HomeManager{
 		`${'ap'[Math.floor(h/12)]}${H}${halfFlag?" ":":"}${M}${qtFlag?" ":"'"}${S}${octFlag?" ":"'"}${L}`.match(/./g).forEach((v,i)=>this._drawChar(i,v));
 		const minDelay=10, maxDelay=100;
 		setTimeout(()=>this._refresh(), Math.floor(minDelay+Math.random()*(maxDelay-minDelay)));
+	}
+
+	_drawCalendar(i){
+		const dt = new Date();
+		const dateNow = i ? null : dt.getDate();
+		dt.setDate(1);
+		dt.setMonth(dt.getMonth()+i);
+		const $f = $('.calendar .face[data-month="'+i+'"]');
+		const memoKey = 'sjegink-calendar-'+dt.getFullYear()+String(dt.getMonth()+1).padStart(2,0);
+		const memoData = (raw=>{try{ return JSON.parse(raw||"{}"); }catch{ return {} }})(localStorage.getItem(memoKey));
+		$f.children().remove();
+		const $h = $('<div>').addClass("header").appendTo($f).append([
+			$('<p>').addClass("year").html(dt.getFullYear()),
+			$('<p>').addClass("month").html(dt.getMonth()+1),
+		])
+		const $b = $('<div>').addClass("body").appendTo($f);
+		dt.setMonth(dt.getMonth()+1);
+		dt.setDate(0);
+		const monthGot = dt.getMonth();
+		const dMax = dt.getDate();
+		dt.setDate(1);
+		const dMin = 1-dt.getDay();
+		dt.setDate(dMin)
+		for(let d=dMin; d<dMax+7; d++){
+			const $d = $('<div>').addClass("day").append([
+				$('<span>').html(dt.getDate()),
+				monthGot !== dt.getMonth() ? null :
+					$('<textarea>').attr('maxlength',50).val(memoData[dt.getDate()]).on('focus', watchText).on('focusout', releaseText),
+			]).appendTo($b);
+			$d.addClass(
+				monthGot !== dt.getMonth() ? "inactive" :
+				dt.getDay()===6 ? "saturday" :
+				dt.getDay()===0 ? "sunday" :
+				null);
+			if(monthGot===dt.getMonth() && dateNow===dt.getDate()){
+				$d.addClass("today");
+			}
+			dt.setTime(dt.getTime()+86400000);
+			if(dMax<d && 0==dt.getDay()) break;
+		}
+		function watchText(ev){
+			const $t = $(this), d = $t.parent().children('span').text();
+			let value = $t.val();
+			$t.data('watch-intv', setInterval(()=>{
+				if($t.val()!==value){
+					value = $t.val();
+					save(d, value);
+				}
+			},1000));
+		}
+		function releaseText(ev){
+			const $t = $(this), d = $t.parent().children('span').text();
+			clearInterval($t.data('watch-intv'));
+			save(d, $t.val());
+			$t.data('watch-intv', null)
+		}
+		function save(d, value){
+			memoData[d] = value;
+			localStorage.setItem(memoKey, JSON.stringify(memoData));
+		}
 	}
 
 	_drawChar(i,v){
