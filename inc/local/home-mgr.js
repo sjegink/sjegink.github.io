@@ -19,7 +19,10 @@ window.homeMgr = new class HomeManager{
 		// space
 		const $s = $('<div>').addClass("space").appendTo($x);
 		// face-display
-		$('<div>').addClass("face f_dp").appendTo($s);
+		$('<div>').addClass("clock").append([
+			$('<div>').addClass("top"),
+			$('<div>').addClass("face"),
+		]).appendTo($s);
 		"012:34'56.789".match(/./g).forEach((v,i)=>this._drawChar(i,v));
 	}
 
@@ -57,7 +60,7 @@ window.homeMgr = new class HomeManager{
 				['+','+',	"vertical"],
 				['0','+', "horizontal"],
 			]
-		).map(args=>createSpan(...args))).appendTo($('.face.f_dp')));
+		).map(args=>createSpan(...args))).appendTo($('.clock .face')));
 		let n = Object.assign({
 			' ': 0b0000000,
 			'-': 0b0001000,

@@ -1,19 +1,25 @@
-.space {
-	perspective: 100px;
-    perspective-origin: 50% -25%;
-	filter: blur(.5px);
+.clock {
+	position: relative;
 }
 
-.f_dp {
+.clock .top {
+    position: absolute;
+    top: -10px;
+    width: 500px;
+    height: 20px;
+    border-radius: 10px 10px 0 0;
+    background: linear-gradient(90deg, #222 1px, #777 4px, #222 7px, #000 calc(100% - 8px), #333 calc(100% - 4px),black calc(100% - 2px))
+}
+
+.clock .face {
 	position: relative;
 	width: 500px;
 	height: 100px;
 	border-radius: 10px;
 	background-color:#000;
-	transform: rotate3d(0, 1, 0, 15deg) translate(20%,0);
 }
 
-.f_dp div {
+.clock .face div {
 	position: absolute;
 	top: 50%; left: 50%;
 	width: 40px;
@@ -21,56 +27,57 @@
 	transform:translate(-50%,-50%);
 }
 
-.f_dp div[d-index="0"] {
+.clock .face div[d-index="0"] {
 	transform:translate(-575%,-50%);
 }
-.f_dp div[d-index="1"] {
+.clock .face div[d-index="1"] {
 	transform:translate(-475%,-50%);
 }
-.f_dp div[d-index="2"] {
+.clock .face div[d-index="2"] {
 	transform:translate(-375%,-50%);
 }
-.f_dp div[d-index="3"] {
+.clock .face div[d-index="3"] {
 	transform:translate(-300%,-50%);
 }
-.f_dp div[d-index="4"] {
+.clock .face div[d-index="4"] {
 	transform:translate(-225%,-50%);
 }
-.f_dp div[d-index="5"] {
+.clock .face div[d-index="5"] {
 	transform:translate(-125%,-50%);
 }
-.f_dp div[d-index="6"] {
+.clock .face div[d-index="6"] {
 	transform:translate(-50%,-50%);
 }
-.f_dp div[d-index="7"] {
+.clock .face div[d-index="7"] {
 	transform:translate(+25%,-50%);
 }
-.f_dp div[d-index="8"] {
+.clock .face div[d-index="8"] {
 	transform:translate(+125%,-50%);
 }
-.f_dp div[d-index="9"] {
+.clock .face div[d-index="9"] {
 	transform:translate(+200%,-50%);
 }
-.f_dp div[d-index="10"] {
+.clock .face div[d-index="10"] {
 	transform:translate(+275%,-50%);
 }
-.f_dp div[d-index="11"] {
+.clock .face div[d-index="11"] {
 	transform:translate(+375%,-50%);
 }
-.f_dp div[d-index="12"] {
+.clock .face div[d-index="12"] {
 	transform:translate(+475%,-50%);
 }
 
-.f_dp span {
+.clock .face span {
 	position:absolute;
 	background-color: #333;
 }
-.f_dp span.is-active {
+.clock .face span.is-active {
 	background-color: #FF3;
 	box-shadow: 0 0 4px 2px #ffb7;
 }
 
-.f_dp span:before,span:after{
+.clock .face span:before,
+.clock .face span:after{
 	content: '';
 	position: absolute;
 	width: 5px;
@@ -79,73 +86,73 @@
 	transform: rotate(45deg) scale(.8);
 }
 
-.f_dp span[stroke-type="horizontal"] {
+.clock .face span[stroke-type="horizontal"] {
 	width: 20px;
 	height: 5px;
 }
-.f_dp span[stroke-type="horizontal"]:before {
+.clock .face span[stroke-type="horizontal"]:before {
 	left:-2.5px;
 }
-.f_dp span[stroke-type="horizontal"]:after {
+.clock .face span[stroke-type="horizontal"]:after {
 	right:-2.5px;
 }
 
-.f_dp span[stroke-type="horizontal"][stroke-y="-"] {
+.clock .face span[stroke-type="horizontal"][stroke-y="-"] {
 	top: 0px;
 	left: 50%;
 	transform:translate(-50%,0);
 }
-.f_dp span[stroke-type="horizontal"][stroke-y="0"] {
+.clock .face span[stroke-type="horizontal"][stroke-y="0"] {
 	top: 50%;
 	left: 50%;
 	transform:translate(-50%,-50%);
 }
-.f_dp span[stroke-type="horizontal"][stroke-y="+"] {
+.clock .face span[stroke-type="horizontal"][stroke-y="+"] {
 	bottom: 0;
 	left: 50%;
 	transform:translate(-50%,0);
 }
 
-.f_dp span[stroke-type="vertical"] {
+.clock .face span[stroke-type="vertical"] {
 	width: 5px;
 	height: 20px;
 }
-.f_dp span[stroke-type="vertical"]:not([stroke-x]) {
+.clock .face span[stroke-type="vertical"]:not([stroke-x]) {
 	height: 10px;
 }
-.f_dp span[stroke-type="vertical"]:before {
+.clock .face span[stroke-type="vertical"]:before {
 	top:-2.5px;
 }
-.f_dp span[stroke-type="vertical"]:after {
+.clock .face span[stroke-type="vertical"]:after {
 	bottom:-2.5px;
 }
 
-.f_dp span[stroke-type="vertical"][stroke-y="-"]:not([stroke-x]) {
+.clock .face span[stroke-type="vertical"][stroke-y="-"]:not([stroke-x]) {
 	top: 6px;
 	left: 50%;
 	transform:translate(-50%,0);
 }
-.f_dp span[stroke-type="vertical"][stroke-y="-"][stroke-x="-"] {
+.clock .face span[stroke-type="vertical"][stroke-y="-"][stroke-x="-"] {
 	top: 6px;
 	left: 5px;
 	transform:translate(-50%,0);
 }
-.f_dp span[stroke-type="vertical"][stroke-y="-"][stroke-x="+"] {
+.clock .face span[stroke-type="vertical"][stroke-y="-"][stroke-x="+"] {
 	top: 6px;
 	right: 5px;
 	transform:translate(50%,0);
 }
-.f_dp span[stroke-type="vertical"][stroke-y="+"]:not([stroke-x]) {
+.clock .face span[stroke-type="vertical"][stroke-y="+"]:not([stroke-x]) {
 	bottom: 6px;
 	left: 50%;
 	transform:translate(-50%,0);
 }
-.f_dp span[stroke-type="vertical"][stroke-y="+"][stroke-x="-"] {
+.clock .face span[stroke-type="vertical"][stroke-y="+"][stroke-x="-"] {
 	bottom: 6px;
 	left: 5px;
 	transform:translate(-50%,0);
 }
-.f_dp span[stroke-type="vertical"][stroke-y="+"][stroke-x="+"] {
+.clock .face span[stroke-type="vertical"][stroke-y="+"][stroke-x="+"] {
 	bottom: 6px;
 	right: 5px;
 	transform:translate(50%,0);
