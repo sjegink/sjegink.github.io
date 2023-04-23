@@ -1,0 +1,39 @@
+:root {
+	--v-board-padding: 8px;
+	--v-box-padding: 4px;
+	--v-cell-padding: 2px;
+}
+
+.x_board {
+	--v-size-by-vh: calc(100vh - 120px);
+	--v-size-by-vw: 90vw;
+	width: var(--v-size-by-vh); max-width: var(--v-size-by-vw);
+	height: var(--v-size-by-vh); max-height: var(--v-size-by-vw);
+	border-radius: var(--v-board-padding);
+	padding: calc(var(--v-board-padding) / 2);
+	background-color: inherit;
+	box-shadow: 0 4px 16px 2px #0007;
+}
+.x_board > * {
+	padding: calc(var(--v-board-padding) / 2);
+}
+
+.box {
+	width: 100%; height: 100%;
+	border-radius: var(--v-box-padding);
+	padding: calc(var(--v-box-padding) / 2);
+	background-color: inherit;
+	box-shadow: 0 2px 6px 0px #0007;
+}
+.box > * {
+	padding: calc(var(--v-box-padding) / 2);
+}
+
+.cell {
+	width: 100%; height: 100%;
+	border-radius: var(--v-cell-padding);
+	padding: var(--v-cell-padding);
+	background-color: inherit;
+	box-shadow: 0 1px 2px 0px #0007;
+	align-items: center; justify-content: center; text-align: center;
+}
