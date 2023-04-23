@@ -8,7 +8,7 @@ window.sudokuMgr = new class SudokuManager{
 		$(document)
 			.ready(async ()=>{
 				this._clear();
-				await this.generate(6);
+				await this.generate(4);
 				this._draw();
 			})
 	}
@@ -53,7 +53,6 @@ window.sudokuMgr = new class SudokuManager{
 	}
 
 	async generate(size){
-
 		// #0 STAND-BY
 		if(size>6){
 			console.warn("Size must be less than or equal to 6");
@@ -77,48 +76,50 @@ window.sudokuMgr = new class SudokuManager{
 			}
 			this._map[oy][ox][iy][ix] = val;
 		}
-		// let presetCode = this._buildPresetCode(this._map.map(arr=>arr.map(arr=>arr.map(arr=>arr.join("")).join("")).join("")).join(""));
-		// console.log(`Preset code: ${presetCode}`);
-		// console.log(`decode: ${this._decodePresetCode(presetCode, radix)}`);
+			// let presetCode = this._buildPresetCode(this._map.map(arr=>arr.map(arr=>arr.map(arr=>arr.join("")).join("")).join("")).join(""));
+			// console.log(`Preset code: ${presetCode}`);
+			// console.log(`decode: ${this._decodePresetCode(presetCode, radix)}`);
 		// #2 SWAP CELLS
-		oy = ox = 0;
-		const targets = new Array(radix).fill().map((_,i)=>new this.CellInfo(oy,ox,Math.floor(i/size),i%size));
-		targets.sort(()=>Math.random()-.5);
-		// targets.splice(radix);
-		for(let i in targets){
-			let newVal = chars[Math.floor(Math.random()*(chars.length-1))];
-			if(newVal==targets[i].value) newVal = chars[chars.length-1];
-			await this._adjustCell(targets[i],newVal);
-			await this._verify().catch(e=>{this._draw(); throw e; });
-		}
-		this._evaluateComplex();
-		// #3 LINEAR SHUFFLE
-		const ySort = new Array(size).fill().map((_,i)=>i).sort(()=>Math.random()-.5);
-		const xSort = new Array(size).fill().map((_,i)=>i).sort(()=>Math.random()-.5);
-		this._map = ySort.map(oy=>{
-			return xSort.map(ox=>this._map[oy][ox]);
-		});
-		ySort.sort(()=>Math.random()-.5);
-		xSort.sort(()=>Math.random()-.5);
-		for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++){
-			this._map[oy][ox] = ySort.map(iy=>{
-				return xSort.map(ix=>this._map[oy][ox][iy][ix]);
-			});
-		}
-		this._evaluateComplex();
+		// oy = ox = 0;
+		// const targets = new Array(radix).fill().map((_,i)=>new this.CellInfo(oy,ox,Math.floor(i/size),i%size));
+		// targets.sort(()=>Math.random()-.5);
+		// for(let i in targets){
+		// 	let newVal = chars[Math.floor(Math.random()*(chars.length-1))];
+		// 	if(newVal==targets[i].value) newVal = chars[chars.length-1];
+		// 	await this._adjustCell(targets[i],newVal);
+		// 	await this._verify().catch(e=>{this._draw(); throw e; });
+		// }
+		// this._evaluateStruct();
+		// // #3 LINEAR SHUFFLE
+		// const ySort = new Array(size).fill().map((_,i)=>i).sort(()=>Math.random()-.5);
+		// const xSort = new Array(size).fill().map((_,i)=>i).sort(()=>Math.random()-.5);
+		// this._map = ySort.map(oy=>{
+		// 	return xSort.map(ox=>this._map[oy][ox]);
+		// });
+		// ySort.sort(()=>Math.random()-.5);
+		// xSort.sort(()=>Math.random()-.5);
+		// for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++){
+		// 	this._map[oy][ox] = ySort.map(iy=>{
+		// 		return xSort.map(ix=>this._map[oy][ox][iy][ix]);
+		// 	});
+		// }
+		// this._evaluateStruct();
 		this._verify();
 		// #4 ERASING PUNCH
-		return;
 		let erasable = true;
 		while(erasable){
 			erasable = false;
 			for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++){
-				const cell = this.CellInfo.get(oy,ox,NaN,NaN).filter(cell=>cell.value!=null).sort(()=>Math.random()-.5);
+				const cell = this.CellInfo.get(oy,ox,NaN,NaN).filter(cell=>cell.value!=null).sort(()=>Math.random()-.5).shift();
 				if(this._tryPunch(cell)){
 					erasable = true;
 				}
 			}
 		}
+		this.CellInfo.get(NaN,NaN,NaN,NaN).filter(cell=>cell.value!=null).sort(()=>Math.random()-.5).forEach(cell=>{
+			this._tryPunch(cell);
+		});
+		this._evaluateDifficulty();
 	}
 	/**
 	 * Find the value in the cell(s)
@@ -187,15 +188,34 @@ window.sudokuMgr = new class SudokuManager{
 		}
 	}
 	_tryPunch(cell){
-		let oy,ox,iy,ix;
 		const size = this._map.length;
-		for(oy=0; oy<size; oy++) for(iy=0; iy<size; iy++){
-			if(cell.oy==oy && cell.iy==iy) continue;
-
+		const checkCompetitor = (oy,ox,iy,ix)=>{
+			const isFixed=[oy,ox,iy,ix].map(arg=>arg!=null)
+			for(let i=0,j; i<size; i++) for(j=0; j<size; j++){
+				[oy,ox,iy,ix] = [oy,ox,iy,ix].map((arg,i)=>isFixed[i]?arg:'null').join('\t').replace('null',i).replace('null',j).split('\t').map(arg=>parseInt(arg));
+				const cf = new this.CellInfo(oy,ox,iy,ix); // new competitor appeared!
+				if(this.CellInfo.same(cell,cf)) continue; // no compare with itself
+				if(cf.value!=null) continue; // no competitor with filled cell
+				if(cell.iy != cf.iy) if(0 < this._find(cell.value, cf.oy,null,cf.iy,null, true).length) continue; // this competitor is out by raw-rule
+				if(cell.ix != cf.ix) if(0 < this._find(cell.value, null,cf.ox,null,cf.ix, true).length) continue; // this competitor is out by col-rule
+				if(cell.ox != cf.ox) if(0 < this._find(cell.value, cf.oy,cf.ox,null,null, true).length) continue; // this competitor is out by box-rule
+				return false;
+			}
+			return true;
+		};
+		if((false // &_
+			|| checkCompetitor(cell.oy,cell.ox,null,null) //&_
+			|| checkCompetitor(cell.oy,null,cell.iy,null) //&_
+			|| checkCompetitor(null,cell.ox,null,cell.ix) //&_
+		)){
+			cell.setValue(null);
+			return true;
+		}else{
+			return false;
 		}
 	}
-	/** how board complexed. */
-	_evaluateComplex(){
+	/** how board structed complex. */
+	_evaluateStruct(){
 		let evolCount = 0;
 		const size = this._map.length;
 		const chars = new Array(Math.pow(size,2)).fill('\0').map((_,i)=>i.toString(36));
@@ -213,6 +233,18 @@ window.sudokuMgr = new class SudokuManager{
 			evolCount += org==cell.value ? 0 : 1;
 		}
 		console.log(`evoluted cells = ${evolCount} / ${totalCount} (${(100*evolCount/totalCount).toFixed(0)}%)`);
+	}
+	/** how board punched to be difficulty */
+	_evaluateDifficulty(){
+		let emptyCount = 0;
+		const size = this._map.length;
+		const totalCount = Math.pow(size, 4);
+		let oy=0,ox=0,iy,ix;
+		for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++) for(iy=0; iy<size; iy++) for(ix=0; ix<size; ix++){
+			let cell = new this.CellInfo(oy,ox,iy,ix);
+			emptyCount += cell.value ? 0 : 1;
+		}
+		console.log(`filled cells = ${totalCount-emptyCount} / ${totalCount} (-${(100*emptyCount/totalCount).toFixed(0)}%)`);
 	}
 	async _verify(){
 		let oy,ox,iy,ix;
