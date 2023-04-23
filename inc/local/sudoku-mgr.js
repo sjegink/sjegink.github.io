@@ -8,7 +8,7 @@ window.sudokuMgr = new class SudokuManager{
 		$(document)
 			.ready(async ()=>{
 				this._clear();
-				await this.generate(3);
+				await this.generate(5);
 				this._draw();
 			})
 	}
@@ -53,117 +53,188 @@ window.sudokuMgr = new class SudokuManager{
 	}
 
 	async generate(size){
+		// #0 STAND-BY
 		const radix = Math.pow(size,2);
-		// define candidate characters
 		const chars = new Array(radix).fill('\0').map((_,i)=>i.toString(36));
 		if(radix < 10){
 			chars.shift();
 			chars.push(radix);
 		}
-		// create storage
 		const _build = fill=>new Array(size).fill(0).map(fill);
-		let ox,oy, ix,iy;
-		// generate full
+		let ox,oy, ix,iy, checkpoint = new Date().getTime();
+		// #1 GENERATE FULL-VERSION
 		const presets = {
 			4: [
-				"0123456789abcdef9a451bc87def2036bfe6d92a013c48578d7c3ef0425619ab3a79bc84def05216c2f039a14567e8dbe564fd7082b19ac3b18d562e9ac3704f6395afb814cd270eb40ad17c5f2e6389c78d230e6ba914f5ef1264950738cbda7bd1e04a9652f83cae52f6938cb4071d30985c127edfa64bfc64d8b7a30125e9",
-				"0123456789abcdef5fbc81de0236a97446a8f9207ecd51b37ed9a3bcf1450862def41ab058329c76b019e7c84a6d235fc27ad365ebf98041658392f4c071baed6758ab49e2cdf301c4fad8013b956e270d92375e6a1fb48c1b3e2fc64708d95a7f1e20dab485369c958b76431ca0fde2acd495eb2f36180736208c1fed9754ab",
-				"0123456789abcdefb5cf28d3e7069a418649eabcd5f102377adef091c432586b978162b53acdef04dfab091c462e537823c4ad8ef705916b65e03f471b89ac2da3f2104658de7b9ccbe9f28da4671035105679eabc234fd88d74b3c5091fe2a6fe18bc3ad45026793cb06d927efa8154649d5e7fc8123ba0275a410896b3defc",
-				"0123456789abcdefafb89c13d07e452696cedf801245a37b745dabe23c6f8901ae9c387d5046f2b1f18bc2e937ad046504d2fa5689b17ce35376b014cf2e98dad7856f19b3cae402b60aedc728f45391e19c25346d07b8fa42f30a8be1956dc776fe1a502bd49c38193c6b4f8e507ad240adce2837195b6f25b8d739f6ac1e40",
+				"됰릖뱭꼮룶귔뵠긆릚꾺됹뤀꽍꿛냟럣군뱾눺릎됩뚄멅갭꽽됹뗲꿫받둒롊릹뚯깠뀷녍걫랇궒땙늫갰뜁몱굼껵륡뵩껄뉍몂댆겮긩뱙겱녒귡묙곍뙎롔땚듉밋뗰뵗돽뛹걏뉅믚끆롑교껈눮녞겣꿔",
+				"뛗뇁먛뮪깅뎐뱁뙕갔맘눤묰끠걆눌뛞뀔뛰땙볍뇈뎔볲뛔냟득뭶눏뷓겊뢅렙뢄묈꼹렙돫뵘뚈붲굱뫖곹낎뫅맰꼶꿴먋뫒곴뤞굴늢굉넢걺뗟뭞륉믒럩뇖땇렽꽇뙤멋걸뫠뚶릟듢붟녎맶뭀뒔갓늜",
+				"늯먕뮛깻럪냎럡뙋듡묃뢥벴랈몌냙땰뮪낟롰딽뛼뎁귈뒻넴뫒늰껃뫦늞붐걅댣꿾봿걸뤣묚눷뢸민뮯객농묵굟뚄믷곦깼늙띪뢷릨끓뷁냻뗮뉖봎깏렉땠덫뚆루낸먶뷚껸뫺늞꽄닟걺단뗕뷪뚥넹",
+				"료봙뫮돭뛗궯넫렑묑괣꿡렵본귱꾊땹뚨궉룃렣볍녰렅뙆냬밦둱뀳렯볔걞궒댩걂냼룼렘뭚봒걊눺뱐뜁륢봙뭛댾갸괦덆벃릱놐떝됶뀴겚뷟랿믧뤺렫놧덆뀺걳뙒볗딞냮뜋뱔먕꺀띌둆낕떧뢫볙",
+				"롔떭굡겅냛덥몇뵷굇뉒뒩냦렓꺁돍똪롁맇듉걊봜긡뗏꼹꿤몱댛녣붞덗뢃멽뇟뎁굱봟뚾렮땣봉뢪렼갭닐벷됑봸꿽믨릳꾭몴뤂랐봢럝믨눘먊돓귐갭뫺맇궽맽놋밣뒞꺆렳미꿛뚉돇뉨묧뜮렗밒",
+				"뚨띾괌림뎆냮륬멷놬뀖딧뉾뛮딝뵕됌랎긮뚀땈뒾뎠뵕넯뉉둼꾐꾊듐딟랎볖듌뙑뀪곽띠냟괯랐뜵멊둱꾲괧뚪뱥늎묲먣뉤굔뙑럡뛠꿦닳뇷갔꽅뭴밴눿둹럓걊뙧뵳민늘뚞띑먕꺀녬며눮깿놁뚏",
+				"먌믑뗪닦뢑랸놌귦민몴뇥뤚뷩깉낿귀붭띣곚댿뇶뙔맓붞뭀궇뱌뮠꺏덳곍륲궯겄벍늭꼑띻궬럣묰냸룄륑뷤깘던릏몀걉귟띵뮴됤눨뎫믙붌깝걒뤼덢뗬꽂뙉돁깉냤떵맭됑뙝볹벏뫼꿸롐냬귲똷",
+				"랗륛딕뀾돾눫늌귰갰덣룻뎠뷗똾눦갥띏긑묀뗚꿥뜰껄뙢녦믘귰뢽궧릷겷덓뮂댣겭룣꽏냵꿭맞능겁뜏붚꿧뗚밗경냠거뛬끂벛뷟뭹긥뒊룔넗꿷구뉌봞닐꺗럠뷒룥귱뜶댕갼멳굾껂됅먼꺋딓밐",
 			],
 		}[size];
 		if(presets && presets.length){
-			const presetValues = presets[Math.floor(Math.random()*presets.length)].split("");
+			const presetValues = this._decodePresetCode(presets[Math.floor(Math.random()*presets.length)],radix).split("");
 			this._map = _build(()=>_build(()=>_build(()=>_build(()=>presetValues.shift()))));
 		}else{
 			this._map = _build(()=>_build(()=>_build(()=>_build(()=>null))));
-			for(iy=0; iy<size; iy++) for(ix=0; ix<size; ix++){
-				this._map[0][0][iy][ix] = chars[iy*size + ix];
+			for(let i=0,j; i<size; i++) for(j=0; j<size; j++){
+				// first(0,0) box is fixed. (it will be shuffled in step #3)
+				this._map[0][0][i][j] = //&_
+				this._map[0][i][0][j] = //&_
+				this._map[i][0][j][0] = chars[i*size + j];
 			}
-			const seeds = JSON.parse(JSON.stringify(this._map));
+			const cands = JSON.parse(JSON.stringify(this._map));
 			const _backward = ()=>{
-				if(--ix < 0){
-					ix += size;
-					if(--iy < 0){
-						iy += size;
-						if(--ox < 0){
-							ox += size;
-							oy--;
-						}
-					}
-				}
-			};
-			const _verify = (val, ...args)=>{
-				if(val===false){
-					return val;
-				}
-				let y1,x1,y2,x2;
-				for(let i=0,j; i<size; i++) for(j=0; j<size; j++){
-					[y1,x1,y2,x2] = args.map(x=>String(x)).join("\t").replace('null', i).replace('null',j).split("\t").map(v=>parseInt(v));
-					if(y1==oy && y2==iy && x1==ox && x2==ix) continue;
-					if(val===this._map[y1][x1][y2][x2]){
-						return false;
-					}
-				}
-				return val;
+				ix--;
+				if(-1 < ix) return; else{  ix += size;  iy--;  }
+				if(-1 < iy) return; else{  iy += size;  ox--;  }
+				if(-1 < ox) return; else{  ox += size;  oy--;  }
+				if(oy+iy==0) _backward(); // first(0,0) row is fixed by code above.
+				if(ox+ix==0) _backward(); // first(0,0) col is fixed by code above.
 			};
 			const logs = [];
-			let loopCount = 0;
-			const loopLimit = Math.pow(radix, 4) * 6;
-// const loopLimit = NaN;
+			let tickCount = 0;
+			const tickLimit = Math.pow(radix, 4) * 6;
+// const tickLimit = NaN;
 			for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++) for(iy=0; iy<size; iy++) for(ix=0; ix<size; ix++){
-				if(oy+ox==0) continue;
-				if(loopLimit <= ++loopCount) throw new Error(`LOOP LIMIT (${loopLimit})`);
-				let val;
-				if(seeds[oy][ox][iy][ix] == null){
-					// 시드 없는 셀 = 이제 막 개척하려는 중
-					val = chars[Math.floor(Math.random() * radix)];
-					seeds[oy][ox][iy][ix] = val;
-					this._map[oy][ox][iy][ix] = val;
-				}else{
-					// 시드 있는 셀 = 다음 셀에서 '모순' 걸려서 되돌아왔음 => 다음값 선정
-					let idx = chars.indexOf(this._map[oy][ox][iy][ix]);
-					idx = (idx + 1) % radix;
-					val = chars[idx];
-					this._map[oy][ox][iy][ix] = val;
-					// 시드와 겹침 = 한 바퀴 다 돌았는데 가능한 값이 없음 = '모순' => 이전 셀을 바꿔야 함
-					if(val === seeds[oy][ox][iy][ix]){
-						this._map[oy][ox][iy][ix] = null;
-						seeds[oy][ox][iy][ix] = null;
-						_backward(--ix);
-						continue;
-					}
+				if(oy+ox==0) continue; // first(0,0) box is fixed by code above.
+				if(oy+iy==0) continue; // first(0,0) row is fixed by code above.
+				if(ox+ix==0) continue; // first(0,0) col is fixed by code above.
+				if(tickLimit <= ++tickCount){
+					this._flushLogs(logs);
+					throw new Error(`TICK LIMIT (${tickLimit})`);
 				}
-				// 검증
-				val = _verify(val, oy,ox,null,null); // 박스 내에서 중복검사
-				val = _verify(val, null,ox,null,ix); // 세로 줄에서 중복검사
-				val = _verify(val, oy,null,iy,null); // 가로 줄에서 중복검사
-				// logs.push(`[${oy}][${ox}][${iy}][${ix}] = ${this._map[oy][ox][iy][ix]} :${val===false?'fail ###':'pass_'}`);
-				if(loopCount % 10000 == 0){
+				let val;
+				if(cands[oy][ox][iy][ix] == null){
+					cands[oy][ox][iy][ix] = Array.from(chars);
+					cands[oy][ox][iy][ix] = cands[oy][ox][iy][ix].map(ch=>this._has(ch,oy,ox,iy,ix)?null:ch).filter(ch=>ch!=null);
+					cands[oy][ox][iy][ix].sort(()=>Math.random()-.5);
+					logs.push(`[${oy}][${ox}][${iy}][${ix}] :init(${cands[oy][ox][iy][ix].join(",")})`);
+				}else{
+					logs.push(`[${oy}][${ox}][${iy}][${ix}] :retry(${cands[oy][ox][iy][ix].join(",")})`);
+				}
+				
+				if(tickCount % 100 == 0){
 					this._draw();
 					await this._sleep(0);
-					// console.log(logs);
-					logs.splice(0);
+					this._flushLogs(logs);
 				}
-				if(loopCount == 100000){
+				if(tickCount == 100000){
 					if(!confirm('It takes too long... Do you agree to continue?')){
 						throw new Error("User Interrupt");
 					}
 				}
-				if(val===false){
-					--ix; // 아직 '모순'판정까진 아니고, 일단은 for에 의해 현재의 ix가 다시 실행될 예정 = 다음 값으로 재도전하도록
+
+				if(0 === cands[oy][ox][iy][ix].length){
+					logs.push(`[${oy}][${ox}][${iy}][${ix}] :back`);
+					cands[oy][ox][iy][ix] = null;
+					this._map[oy][ox][iy][ix] = null;
+					_backward(--ix);
 					continue;
 				}
+				this._map[oy][ox][iy][ix] = val = cands[oy][ox][iy][ix].shift();
+				logs.push(`[${oy}][${ox}][${iy}][${ix}] = ${this._map[oy][ox][iy][ix]}`);
 			}
-			logs.length && console.log(logs);
-			console.log(`Generation finished in (${loopCount}/${loopLimit}).`);
+			this._flushLogs(logs);
+			console.log(`Generation finished in (${tickCount}/${tickLimit}, ${String(-checkpoint+(checkpoint=new Date().getTime())).replace(/\B(\d{3})+$/g,",")}ms).`);
 		}
+		let presetCode = this._buildPresetCode(this._map.map(arr=>arr.map(arr=>arr.map(arr=>arr.join("")).join("")).join("")).join(""));
+		console.log(`Preset code: ${presetCode}`);
+		console.log(`decode: ${this._decodePresetCode(presetCode, radix)}`);
 		// TODO: punch
 		// TODO: shuffle
+	}
+	/**
+	 * Find the value in the cell(s)
+	 * @param val {string} Value to be found
+	 * @param coordArgs {...number} As [oy,ox,iy,ix]. If give two null values of those, they will be replaced varietely by for-loop.
+	 * @param [isOne] {boolean} stop if anything was found.
+	 * @return {Array<object>} objects that have
+	 */
+	_find(val, oy,ox,iy,ix, _isOne){
+		const results = [], isFixed=[oy,ox,iy,ix].map(arg=>arg!=null);
+		const getCell = (i,j)=>{
+			[oy,ox,iy,ix] = [oy,ox,iy,ix].map((arg,i)=>isFixed[i]?arg:'null').join('\t').replace('null',i).replace('null',j).split('\t').map(arg=>parseInt(arg));
+			return {
+				oy,ox,iy,ix,
+				value: String(this._map[oy][ox][iy][ix]),
+			};
+		}
+		for(let i=0,j; i<this._map.length; i++){
+			for(j=0; j<this._map.length; j++) {
+				const cell = getCell(i,j);
+				if(String(val)===cell.value){
+					results.push(cell);
+					if(_isOne) return results;
+				}
+			}
+		}
+		return results;
+	}
+	_has(val, oy,ox,iy,ix){
+		return 0 < this._find(val, oy,ox,null,null, true).length ||
+			0 < this._find(val, oy,null,iy,null, true).length ||
+			0 < this._find(val, null,ox,null,ix, true).length;
+	}
+	_buildPresetCode(str){
+		const radixI = Math.sqrt(str.length);
+		const radixO = 1+'힣'.charCodeAt(0)-'가'.charCodeAt(0);
+		str = str.substring(radixI);
+		if(radixI<10) str = str.replace(radixI, '0');
+		const buff = this._convertRadix(str.split("").map(ch=>parseInt(ch,radixI)), radixI, radixO);
+		return buff.map(n=>String.fromCharCode('가'.charCodeAt(0)+n)).join("");
+	}
+	_decodePresetCode(str, radixO){
+		const radixI = 1+'힣'.charCodeAt(0)-'가'.charCodeAt(0);
+		const buff = this._convertRadix(str.split("").map(ch=>ch.charCodeAt(0)-'가'.charCodeAt(0)), radixI, radixO);
+		str = buff.map(n=>n.toString(radixO)).join("");
+		str = new Array(radixO).fill().map((_,i)=>i.toString(radixO)).join("") + str;
+		if(radixO<10) str = str.replace('0', radixO);
+		return str;
+	}
+	_convertRadix(buff, radixI, radixO){
+		if(radixI < radixO){
+			const radixIP = radixI+1; // includes padding
+			const ACC_TIMES = Math.floor(Math.log(radixO) / Math.log(radixIP));
+			let i = 0, acc = 0;
+			if(buff.length % ACC_TIMES){
+				buff = buff.concat(new Array(ACC_TIMES-buff.length%ACC_TIMES).fill(radixI));
+			}
+			buff = buff.reduce((arr,n,i)=>{
+				acc = acc * radixIP + n;
+				if(++i % ACC_TIMES == 0){
+					arr.push(acc);
+					acc = 0;
+				}
+				return arr;
+			},[]);
+		}else{
+			const radixOP = radixO+1; // includes padding
+			const ACC_TIMES = Math.floor(Math.log(radixI) / Math.log(radixOP));
+			buff = buff.reduce((arr,n)=>{
+				let _3 = [];
+				for(let i=0; i<ACC_TIMES; i++){
+					_3.unshift(n % radixOP);
+					n = Math.floor(n/radixOP);
+				}
+				return arr.concat(_3);
+			},[]);
+			buff = buff.filter(v=>v<radixO);
+		}
+		return buff;
 	}
 	async _sleep(ms){
 		return await new Promise(resolve=>{
 			setTimeout(resolve, ms);
 		});
+	}
+	_flushLogs(logs){
+		while(logs.length){
+			const output = logs.splice(0,100);
+			// console.log({output});
+		}
 	}
 };
