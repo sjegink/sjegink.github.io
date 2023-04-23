@@ -8,7 +8,7 @@ window.sudokuMgr = new class SudokuManager{
 		$(document)
 			.ready(async ()=>{
 				this._clear();
-				await this.generate(5);
+				await this.generate(6);
 				this._draw();
 			})
 	}
@@ -53,9 +53,14 @@ window.sudokuMgr = new class SudokuManager{
 	}
 
 	async generate(size){
+
 		// #0 STAND-BY
+		if(size>6){
+			console.warn("Size must be less than or equal to 6");
+			size = 6;
+		}
 		const radix = Math.pow(size,2);
-		const chars = new Array(radix).fill('\0').map((_,i)=>i.toString(36));
+		const chars = new Array(radix).fill('\0').map((_,i)=>i.toString(36)).sort(()=>Math.random()-.5);
 		if(radix < 10){
 			chars.shift();
 			chars.push(radix);
@@ -63,89 +68,57 @@ window.sudokuMgr = new class SudokuManager{
 		const _build = fill=>new Array(size).fill(0).map(fill);
 		let ox,oy, ix,iy, checkpoint = new Date().getTime();
 		// #1 GENERATE FULL-VERSION
-		const presets = {
-			4: [
-				"됰릖뱭꼮룶귔뵠긆릚꾺됹뤀꽍꿛냟럣군뱾눺릎됩뚄멅갭꽽됹뗲꿫받둒롊릹뚯깠뀷녍걫랇궒땙늫갰뜁몱굼껵륡뵩껄뉍몂댆겮긩뱙겱녒귡묙곍뙎롔땚듉밋뗰뵗돽뛹걏뉅믚끆롑교껈눮녞겣꿔",
-				"뛗뇁먛뮪깅뎐뱁뙕갔맘눤묰끠걆눌뛞뀔뛰땙볍뇈뎔볲뛔냟득뭶눏뷓겊뢅렙뢄묈꼹렙돫뵘뚈붲굱뫖곹낎뫅맰꼶꿴먋뫒곴뤞굴늢굉넢걺뗟뭞륉믒럩뇖땇렽꽇뙤멋걸뫠뚶릟듢붟녎맶뭀뒔갓늜",
-				"늯먕뮛깻럪냎럡뙋듡묃뢥벴랈몌냙땰뮪낟롰딽뛼뎁귈뒻넴뫒늰껃뫦늞붐걅댣꿾봿걸뤣묚눷뢸민뮯객농묵굟뚄믷곦깼늙띪뢷릨끓뷁냻뗮뉖봎깏렉땠덫뚆루낸먶뷚껸뫺늞꽄닟걺단뗕뷪뚥넹",
-				"료봙뫮돭뛗궯넫렑묑괣꿡렵본귱꾊땹뚨궉룃렣볍녰렅뙆냬밦둱뀳렯볔걞궒댩걂냼룼렘뭚봒걊눺뱐뜁륢봙뭛댾갸괦덆벃릱놐떝됶뀴겚뷟랿믧뤺렫놧덆뀺걳뙒볗딞냮뜋뱔먕꺀띌둆낕떧뢫볙",
-				"롔떭굡겅냛덥몇뵷굇뉒뒩냦렓꺁돍똪롁맇듉걊봜긡뗏꼹꿤몱댛녣붞덗뢃멽뇟뎁굱봟뚾렮땣봉뢪렼갭닐벷됑봸꿽믨릳꾭몴뤂랐봢럝믨눘먊돓귐갭뫺맇궽맽놋밣뒞꺆렳미꿛뚉돇뉨묧뜮렗밒",
-				"뚨띾괌림뎆냮륬멷놬뀖딧뉾뛮딝뵕됌랎긮뚀땈뒾뎠뵕넯뉉둼꾐꾊듐딟랎볖듌뙑뀪곽띠냟괯랐뜵멊둱꾲괧뚪뱥늎묲먣뉤굔뙑럡뛠꿦닳뇷갔꽅뭴밴눿둹럓걊뙧뵳민늘뚞띑먕꺀녬며눮깿놁뚏",
-				"먌믑뗪닦뢑랸놌귦민몴뇥뤚뷩깉낿귀붭띣곚댿뇶뙔맓붞뭀궇뱌뮠꺏덳곍륲궯겄벍늭꼑띻궬럣묰냸룄륑뷤깘던릏몀걉귟띵뮴됤눨뎫믙붌깝걒뤼덢뗬꽂뙉돁깉냤떵맭됑뙝볹벏뫼꿸롐냬귲똷",
-				"랗륛딕뀾돾눫늌귰갰덣룻뎠뷗똾눦갥띏긑묀뗚꿥뜰껄뙢녦믘귰뢽궧릷겷덓뮂댣겭룣꽏냵꿭맞능겁뜏붚꿧뗚밗경냠거뛬끂벛뷟뭹긥뒊룔넗꿷구뉌봞닐꺗럠뷒룥귱뜶댕갼멳굾껂됅먼꺋딓밐",
-			],
-		}[size];
-		if(presets && presets.length){
-			const presetValues = this._decodePresetCode(presets[Math.floor(Math.random()*presets.length)],radix).split("");
-			this._map = _build(()=>_build(()=>_build(()=>_build(()=>presetValues.shift()))));
-		}else{
-			this._map = _build(()=>_build(()=>_build(()=>_build(()=>null))));
-			for(let i=0,j; i<size; i++) for(j=0; j<size; j++){
-				// first(0,0) box is fixed. (it will be shuffled in step #3)
-				this._map[0][0][i][j] = //&_
-				this._map[0][i][0][j] = //&_
-				this._map[i][0][j][0] = chars[i*size + j];
+		this._map = _build(()=>_build(()=>_build(()=>_build(()=>null))));
+		for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++) for(iy=0; iy<size; iy++) for(ix=0; ix<size; ix++){
+			this._map[oy][ox][iy][ix] = null;
+			let val = chars[(oy + ox*size + iy*size + ix) % radix];
+			if(this._has(val, oy,ox,iy,ix)){
+				throw new Error('duplicate :'+ val+ [oy,ox,iy,ix]);
 			}
-			const cands = JSON.parse(JSON.stringify(this._map));
-			const _backward = ()=>{
-				ix--;
-				if(-1 < ix) return; else{  ix += size;  iy--;  }
-				if(-1 < iy) return; else{  iy += size;  ox--;  }
-				if(-1 < ox) return; else{  ox += size;  oy--;  }
-				if(oy+iy==0) _backward(); // first(0,0) row is fixed by code above.
-				if(ox+ix==0) _backward(); // first(0,0) col is fixed by code above.
-			};
-			const logs = [];
-			let tickCount = 0;
-			const tickLimit = Math.pow(radix, 4) * 6;
-// const tickLimit = NaN;
-			for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++) for(iy=0; iy<size; iy++) for(ix=0; ix<size; ix++){
-				if(oy+ox==0) continue; // first(0,0) box is fixed by code above.
-				if(oy+iy==0) continue; // first(0,0) row is fixed by code above.
-				if(ox+ix==0) continue; // first(0,0) col is fixed by code above.
-				if(tickLimit <= ++tickCount){
-					this._flushLogs(logs);
-					throw new Error(`TICK LIMIT (${tickLimit})`);
-				}
-				let val;
-				if(cands[oy][ox][iy][ix] == null){
-					cands[oy][ox][iy][ix] = Array.from(chars);
-					cands[oy][ox][iy][ix] = cands[oy][ox][iy][ix].map(ch=>this._has(ch,oy,ox,iy,ix)?null:ch).filter(ch=>ch!=null);
-					cands[oy][ox][iy][ix].sort(()=>Math.random()-.5);
-					logs.push(`[${oy}][${ox}][${iy}][${ix}] :init(${cands[oy][ox][iy][ix].join(",")})`);
-				}else{
-					logs.push(`[${oy}][${ox}][${iy}][${ix}] :retry(${cands[oy][ox][iy][ix].join(",")})`);
-				}
-				
-				if(tickCount % 100 == 0){
-					this._draw();
-					await this._sleep(0);
-					this._flushLogs(logs);
-				}
-				if(tickCount == 100000){
-					if(!confirm('It takes too long... Do you agree to continue?')){
-						throw new Error("User Interrupt");
-					}
-				}
-
-				if(0 === cands[oy][ox][iy][ix].length){
-					logs.push(`[${oy}][${ox}][${iy}][${ix}] :back`);
-					cands[oy][ox][iy][ix] = null;
-					this._map[oy][ox][iy][ix] = null;
-					_backward(--ix);
-					continue;
-				}
-				this._map[oy][ox][iy][ix] = val = cands[oy][ox][iy][ix].shift();
-				logs.push(`[${oy}][${ox}][${iy}][${ix}] = ${this._map[oy][ox][iy][ix]}`);
-			}
-			this._flushLogs(logs);
-			console.log(`Generation finished in (${tickCount}/${tickLimit}, ${String(-checkpoint+(checkpoint=new Date().getTime())).replace(/\B(\d{3})+$/g,",")}ms).`);
+			this._map[oy][ox][iy][ix] = val;
 		}
-		let presetCode = this._buildPresetCode(this._map.map(arr=>arr.map(arr=>arr.map(arr=>arr.join("")).join("")).join("")).join(""));
-		console.log(`Preset code: ${presetCode}`);
-		console.log(`decode: ${this._decodePresetCode(presetCode, radix)}`);
-		// TODO: punch
-		// TODO: shuffle
+		// let presetCode = this._buildPresetCode(this._map.map(arr=>arr.map(arr=>arr.map(arr=>arr.join("")).join("")).join("")).join(""));
+		// console.log(`Preset code: ${presetCode}`);
+		// console.log(`decode: ${this._decodePresetCode(presetCode, radix)}`);
+		// #2 SWAP CELLS
+		oy = ox = 0;
+		const targets = new Array(radix).fill().map((_,i)=>new this.CellInfo(oy,ox,Math.floor(i/size),i%size));
+		targets.sort(()=>Math.random()-.5);
+		// targets.splice(radix);
+		for(let i in targets){
+			let newVal = chars[Math.floor(Math.random()*(chars.length-1))];
+			if(newVal==targets[i].value) newVal = chars[chars.length-1];
+			await this._adjustCell(targets[i],newVal);
+			await this._verify().catch(e=>{this._draw(); throw e; });
+		}
+		this._evaluateComplex();
+		// #3 LINEAR SHUFFLE
+		const ySort = new Array(size).fill().map((_,i)=>i).sort(()=>Math.random()-.5);
+		const xSort = new Array(size).fill().map((_,i)=>i).sort(()=>Math.random()-.5);
+		this._map = ySort.map(oy=>{
+			return xSort.map(ox=>this._map[oy][ox]);
+		});
+		ySort.sort(()=>Math.random()-.5);
+		xSort.sort(()=>Math.random()-.5);
+		for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++){
+			this._map[oy][ox] = ySort.map(iy=>{
+				return xSort.map(ix=>this._map[oy][ox][iy][ix]);
+			});
+		}
+		this._evaluateComplex();
+		this._verify();
+		// #4 ERASING PUNCH
+		return;
+		let erasable = true;
+		while(erasable){
+			erasable = false;
+			for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++){
+				const cell = this.CellInfo.get(oy,ox,NaN,NaN).filter(cell=>cell.value!=null).sort(()=>Math.random()-.5);
+				if(this._tryPunch(cell)){
+					erasable = true;
+				}
+			}
+		}
 	}
 	/**
 	 * Find the value in the cell(s)
@@ -158,10 +131,7 @@ window.sudokuMgr = new class SudokuManager{
 		const results = [], isFixed=[oy,ox,iy,ix].map(arg=>arg!=null);
 		const getCell = (i,j)=>{
 			[oy,ox,iy,ix] = [oy,ox,iy,ix].map((arg,i)=>isFixed[i]?arg:'null').join('\t').replace('null',i).replace('null',j).split('\t').map(arg=>parseInt(arg));
-			return {
-				oy,ox,iy,ix,
-				value: String(this._map[oy][ox][iy][ix]),
-			};
+			return new this.CellInfo(oy,ox,iy,ix);
 		}
 		for(let i=0,j; i<this._map.length; i++){
 			for(j=0; j<this._map.length; j++) {
@@ -178,6 +148,93 @@ window.sudokuMgr = new class SudokuManager{
 		return 0 < this._find(val, oy,ox,null,null, true).length ||
 			0 < this._find(val, oy,null,iy,null, true).length ||
 			0 < this._find(val, null,ox,null,ix, true).length;
+	}
+	async _adjustCell(cell, value){
+		const backup = JSON.stringify(this._map);
+		const _run = async (cell, value, limitCounter)=>{
+			let valueBefore = cell.value;
+			cell.setValue(value);
+			let conflicts = [].concat(...[
+				this._find(cell.value, cell.oy,cell.ox,null,null),
+				this._find(cell.value, cell.oy,null,cell.iy,null),
+				this._find(cell.value, null,cell.ox,null,cell.ix),
+			]);
+			let hasConflict = conflicts.length;
+			while(hasConflict){
+				hasConflict = false;
+				await PromiseUtils.forEach(conflicts, async (cf)=>{
+					if(this.CellInfo.same(cell,cf) || cf.reload().value != value){
+						return;
+					}
+					limitCounter--;
+					if(limitCounter % 100 == 0) await this._sleep(0);
+					if(limitCounter<0) throw new Error('limit exceed');
+					await _run(cf, valueBefore, limitCounter);
+					hasConflict = true;
+				});
+			}
+		}
+		try{
+			await _run(cell, value, 1024);
+			await this._verify();
+		}catch(e){
+			if(/limit exceed/.test(e) || /Duplicated/.test(e)){
+				console.warn(`Rollback(${e.message.replace(/:.*/,"")})`);
+				this._map = JSON.parse(backup);
+				return;
+			}
+			throw e;
+		}
+	}
+	_tryPunch(cell){
+		let oy,ox,iy,ix;
+		const size = this._map.length;
+		for(oy=0; oy<size; oy++) for(iy=0; iy<size; iy++){
+			if(cell.oy==oy && cell.iy==iy) continue;
+
+		}
+	}
+	/** how board complexed. */
+	_evaluateComplex(){
+		let evolCount = 0;
+		const size = this._map.length;
+		const chars = new Array(Math.pow(size,2)).fill('\0').map((_,i)=>i.toString(36));
+		const totalCount = Math.pow(chars.length, 2), basingTable={};
+		let oy=0,ox=0,iy,ix;
+		for(iy=0; iy<size; iy++) for(ix=0; ix<size; ix++){
+			let org = chars[(oy + ox*size + iy*size + ix) % chars.length];
+			let adj = this._map[oy][ox][iy][ix];
+			if(adj!=org) basingTable[adj]=org;
+		}
+		for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++) for(iy=0; iy<size; iy++) for(ix=0; ix<size; ix++){
+			let cell = new this.CellInfo(oy,ox,iy,ix);
+			let val = basingTable[cell.value];
+			let org = chars[(oy + ox*size + iy*size + ix) % chars.length];
+			evolCount += org==cell.value ? 0 : 1;
+		}
+		console.log(`evoluted cells = ${evolCount} / ${totalCount} (${(100*evolCount/totalCount).toFixed(0)}%)`);
+	}
+	async _verify(){
+		let oy,ox,iy,ix;
+		const size = this._map.length;
+		for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++){
+			this.CellInfo.get(oy,ox,NaN,NaN).reduce(reducer,{});
+		}
+		for(oy=0; oy<size; oy++) for(iy=0; iy<size; iy++){
+			this.CellInfo.get(oy,NaN,iy,NaN).reduce(reducer,{});
+		}
+		for(ox=0; ox<size; ox++) for(ix=0; ix<size; ix++){
+			this.CellInfo.get(NaN,ox,NaN,ix).reduce(reducer,{});
+		}
+		function reducer(acc,cell){
+			const cf = acc[cell.value];
+			if(cf){
+				throw new Error(`Duplicated Value Found: ` + cell+' = '+cf);
+			}else{
+				acc[cell.value] = cell;
+				return acc;
+			}
+		}
 	}
 	_buildPresetCode(str){
 		const radixI = Math.sqrt(str.length);
@@ -237,4 +294,77 @@ window.sudokuMgr = new class SudokuManager{
 			// console.log({output});
 		}
 	}
+
+	CellInfo = ((mgr,CellInfo)=>{
+		Object.assign(CellInfo.prototype, {
+			reload: function(){
+				this.value = mgr._map[this.oy][this.ox][this.iy][this.ix];
+				return this;
+			},
+			update: function(){
+				mgr._map[this.oy][this.ox][this.iy][this.ix] = this.value;
+				return this;
+			},
+			setValue: function(val, isUpdate){
+				this.value = val;
+				if(isUpdate!==false) this.update();
+			},
+			toString: function(){
+				const {oy,ox,iy,ix,value:val} = this;
+				return `${this.constructor.name}{[${[ox,oy]}][${[ix,iy]}]="${val}"}`;
+			},
+		});
+		return Object.assign(CellInfo,{
+			same(c1,c2){
+				return c1.oy==c2.oy && c1.ox==c2.ox && c1.iy==c2.iy && c1.ix==c2.ix;
+			},
+			fromValueInBox(val, oy,ox){
+				for(let iy=0,ix;iy<mgr._map.length;iy++) for(ix=0;ix<mgr._map.length;ix++){
+					if(mgr._map[oy][ox][iy][ix]==val){
+						return new CellInfo(oy,ox,iy,ix);
+					}
+				}
+				return null;
+			},
+			fromValueInRow(val, oy,iy){
+				for(let ox=0,ix;ox<mgr._map.length;ox++) for(ix=0;ix<mgr._map.length;ix++){
+					if(mgr._map[oy][ox][iy][ix]==val){
+						return new CellInfo(oy,ox,iy,ix);
+					}
+				}
+				return null;
+			},
+			fromValueInCol(val, ox,ix){
+				for(let oy=0,iy;oy<mgr._map.length;oy++) for(iy=0;iy<mgr._map.length;iy++){
+					if(mgr._map[oy][ox][iy][ix]==val){
+						return new CellInfo(oy,ox,iy,ix);
+					}
+				}
+				return null;
+			},
+			get(oy,ox,iy,ix){
+				const size = mgr._map.length;
+				const [aoy,aox,aiy,aix] = [oy,ox,iy,ix].map(v=>parseInt(v));
+				if(isNaN(aoy+aox+aiy+aix)){
+					const arr = [];
+					for(oy=isNaN(aoy)?0:aoy; oy<(isNaN(aoy)?size:aoy+1); oy++)
+					for(ox=isNaN(aox)?0:aox; ox<(isNaN(aox)?size:aox+1); ox++)
+					for(iy=isNaN(aiy)?0:aiy; iy<(isNaN(aiy)?size:aiy+1); iy++)
+					for(ix=isNaN(aix)?0:aix; ix<(isNaN(aix)?size:aix+1); ix++)
+					{
+						arr.push(new CellInfo(oy,ox,iy,ix));
+					}
+					return arr;
+				}else{
+					return new CellInfo(oy,ox,iy,ix);
+				}
+			}
+		});
+	})(this, class CellInfo{
+		oy;ox;iy;ix;value;
+		constructor(oy,ox,iy,ix, value){
+			Object.assign(this, {oy,ox,iy,ix,value});
+			if(value===undefined) this.reload();
+		}
+	});
 };
