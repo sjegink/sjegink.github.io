@@ -2,24 +2,54 @@
 
 window.sudokuMgr = new class SudokuManager{
 
-	_map;
+	_map; _cssRule;
 
 	constructor(){
+		$(window)
+			.resize(()=>{
+				this.recalcScale();
+			});
 		$(document)
 			.ready(async ()=>{
+				this._initCss();
 				this._clear();
+				await this._sleep(0);
 				await this.generate(4);
-				this._draw();
+				this.recalcScale();
+				this._draw(true);
 			})
+			.on('mouseover', '.cell', (ev)=>{
+				let $accent = $(ev.target);
+				if(!$accent.hasClass("cell")) return;
+				const val = $accent.attr('data-value');
+				if(val) $accent = $accent.add(`.cell[data-value="${val}"]`);
+				$('.cell.accent').not($accent).removeClass("accent");
+				$accent.addClass("accent");
+			})
+			.on('mouseout', '.cell', (ev)=>{
+				$('.cell.accent').removeClass("accent");
+			});
 	}
 
+	_initCss(){
+		if(!this._cssRule){
+			document.head.appendChild($('<style>').text(`:root{}`)[0]);
+			this._cssRule = document.styleSheets[document.styleSheets.length-1].cssRules[0];
+		}
+	}
 	_clear(){
 		const $main = $('<main>').addClass("my-auto d-flex").append([
-			$('<section>').addClass("x_board  mx-auto d-flex flex-wrap"),
+			$('<section>').addClass("x_board  mx-auto d-flex flex-wrap").append([
+				$('<p>').addClass("d-flex m-auto").text("Loading..."),
+			]),
 		]);
 		$('body').append($main).children('main').not($main).remove();
 	}
-	_draw(){
+	recalcScale(){
+		
+	}
+	_draw(beLock){
+		this._cssRule.style.setProperty('--n-game-size', this._map.length);
 		const $board = $('section').eq(0);
 		$board.children().remove();
 		const boxSize = (100 / this._map.length - .001).toFixed(3) + '%';
@@ -44,7 +74,7 @@ window.sudokuMgr = new class SudokuManager{
 						}).appendTo($box));
 						const value = this._map[oy][ox][iy][ix];
 						if(value!=null){
-							$cell.text(value);
+							$cell.addClass("is-locked").attr('data-value', value).text(value);
 						}
 					}
 				}
@@ -80,30 +110,30 @@ window.sudokuMgr = new class SudokuManager{
 			// console.log(`Preset code: ${presetCode}`);
 			// console.log(`decode: ${this._decodePresetCode(presetCode, radix)}`);
 		// #2 SWAP CELLS
-		// oy = ox = 0;
-		// const targets = new Array(radix).fill().map((_,i)=>new this.CellInfo(oy,ox,Math.floor(i/size),i%size));
-		// targets.sort(()=>Math.random()-.5);
-		// for(let i in targets){
-		// 	let newVal = chars[Math.floor(Math.random()*(chars.length-1))];
-		// 	if(newVal==targets[i].value) newVal = chars[chars.length-1];
-		// 	await this._adjustCell(targets[i],newVal);
-		// 	await this._verify().catch(e=>{this._draw(); throw e; });
-		// }
-		// this._evaluateStruct();
-		// // #3 LINEAR SHUFFLE
-		// const ySort = new Array(size).fill().map((_,i)=>i).sort(()=>Math.random()-.5);
-		// const xSort = new Array(size).fill().map((_,i)=>i).sort(()=>Math.random()-.5);
-		// this._map = ySort.map(oy=>{
-		// 	return xSort.map(ox=>this._map[oy][ox]);
-		// });
-		// ySort.sort(()=>Math.random()-.5);
-		// xSort.sort(()=>Math.random()-.5);
-		// for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++){
-		// 	this._map[oy][ox] = ySort.map(iy=>{
-		// 		return xSort.map(ix=>this._map[oy][ox][iy][ix]);
-		// 	});
-		// }
-		// this._evaluateStruct();
+		oy = ox = 0;
+		const targets = new Array(radix).fill().map((_,i)=>new this.CellInfo(oy,ox,Math.floor(i/size),i%size));
+		targets.sort(()=>Math.random()-.5);
+		for(let i in targets){
+			let newVal = chars[Math.floor(Math.random()*(chars.length-1))];
+			if(newVal==targets[i].value) newVal = chars[chars.length-1];
+			await this._adjustCell(targets[i],newVal);
+			await this._verify().catch(e=>{this._draw(); throw e; });
+		}
+		this._evaluateStruct();
+		// #3 LINEAR SHUFFLE
+		const ySort = new Array(size).fill().map((_,i)=>i).sort(()=>Math.random()-.5);
+		const xSort = new Array(size).fill().map((_,i)=>i).sort(()=>Math.random()-.5);
+		this._map = ySort.map(oy=>{
+			return xSort.map(ox=>this._map[oy][ox]);
+		});
+		ySort.sort(()=>Math.random()-.5);
+		xSort.sort(()=>Math.random()-.5);
+		for(oy=0; oy<size; oy++) for(ox=0; ox<size; ox++){
+			this._map[oy][ox] = ySort.map(iy=>{
+				return xSort.map(ix=>this._map[oy][ox][iy][ix]);
+			});
+		}
+		this._evaluateStruct();
 		this._verify();
 		// #4 ERASING PUNCH
 		let erasable = true;
