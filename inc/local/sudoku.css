@@ -63,6 +63,19 @@
 	opacity: .7;
 	cursor: default;
 }
+.cell.is-incorrect {
+	color: #B00;
+}
+.cell.is-incorrect:before {
+	background: radial-gradient(#F003 10%, #F001 50%, #ff000007 65%, transparent 90%);
+}
+.cell > span {
+	transform: scale(1);
+	transition: linear 200ms;
+}
+.cell:not([data-value]) > span {
+	opacity: 0;
+}
 @media (prefers-color-scheme: light) {
 	.cell.accent {
 		background-color: #FF0;
@@ -74,7 +87,7 @@
 		position:absolute; z-index:-1;
 		top:0; bottom:0; left:0; right:0;
 		display: block;
-		background: radial-gradient(#FF03 10%, transparent 60%);
+		background: radial-gradient(#FF03 10%, #FF01 50%, #ffff0007 65%, transparent 90%);
 		opacity: 0;
 		transition-duration: 200ms;
 	}
@@ -82,7 +95,66 @@
 		color: #333;
 		text-shadow: 0 0 4px #FF0;
 	}
+	.cell.accent.is-incorrect {
+		color: #FF0;
+		text-shadow: 0 0 4px #F00;
+	}
 	.cell.accent:before {
 		opacity: 1;
+	}
+}
+
+.input-layer {
+	position: fixed; z-index:1;
+	top:0; bottom:0; left:0; right:0;
+	transition: linear 250ms;
+}
+.input-layer:not([target]) {
+	opacity: 0;
+	pointer-events: none;
+	transition-duration: 100ms;
+}
+
+.input-layer--outside {
+	position: absolute; z-index: 0;
+	top:0; bottom:0; left:0; right:0;
+	background-color: rgba(0,0,0, .4);
+}
+.input-layer--inside {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.input-layer .cell {
+	width: var(--n-box-size);
+	height: var(--n-box-size);
+	background-color: #333;
+	border-radius: var(--n-box-padding);
+	cursor: default;
+	box-shadow: 0 calc(var(--n-box-padding) / 2) var(--n-box-shadow) calc(var(--n-box-padding) / 4) var(--c-shadow);
+}
+.input-layer .guide {
+	color: #EEE;
+}
+.input-layer .candidate-wrapper {
+	width: 100vw; height: 20vw;
+	overflow-x: scroll;
+}
+.input-layer .candidate {
+	margin: 1vw;
+	display: block;
+	width: 15vw; height: 15vw; flex-shrink: 0;
+	font-size: 10vw;
+}
+.input-layer .candidate:first-child {
+	margin-left: 3vw;
+}
+.input-layer .candidate:last-child {
+	margin-right: 3vw;
+}
+@media(pointer: fine){
+	.if-mobile {
+		display: none!important;
 	}
 }

@@ -18,16 +18,35 @@ window.sudokuMgr = new class SudokuManager{
 				this.recalcScale();
 				this._draw(true);
 			})
-			.on('mouseover', '.cell', (ev)=>{
+			.on('mouseover', '.box .cell', (ev)=>{
 				let $accent = $(ev.target);
+				if(!$accent.is('.cell')) $accent = $accent.parents('.cell').eq(0);
 				if(!$accent.hasClass("cell")) return;
 				const val = $accent.attr('data-value');
 				if(val) $accent = $accent.add(`.cell[data-value="${val}"]`);
 				$('.cell.accent').not($accent).removeClass("accent");
 				$accent.addClass("accent");
 			})
-			.on('mouseout', '.cell', (ev)=>{
+			.on('mouseout', '.box .cell', (ev)=>{
 				$('.cell.accent').removeClass("accent");
+			})
+			.on('click', '.box .cell:not(.is-locked)', (ev)=>{
+				let $cell = $(ev.target);
+				if(!$cell.is('.cell')) $cell = $cell.parents('.cell').eq(0);
+				this._beginInput($cell);
+			})
+			.on('keydown', (ev)=>{
+				this._listenInput(ev.keyCode);
+			})
+			.on('click', '.input-layer .candidate', (ev)=>{
+				const char = $(ev.target).attr('data-value') || $(ev.target).parents('[data-value]').attr('data-value');
+				this._listenInput(char.charCodeAt(0));
+			})
+			.on('click', '.input-layer', (ev)=>{
+				const $target = $(ev.target);
+				if($target.parents('.input-layer--inside').length == 0){
+					this._cancelInput();
+				}
 			});
 	}
 
@@ -41,6 +60,14 @@ window.sudokuMgr = new class SudokuManager{
 		const $main = $('<main>').addClass("my-auto d-flex").append([
 			$('<section>').addClass("x_board  mx-auto d-flex flex-wrap").append([
 				$('<p>').addClass("d-flex m-auto").text("Loading..."),
+			]),
+			$('<div>').addClass("input-layer d-flex").append([
+				$('<div>').addClass("input-layer--outside"),
+				$('<div>').addClass("input-layer--inside m-auto").append([
+					$('<p>').addClass("guide").text("- Listening keyboard Input -"),
+					$('<p>').addClass("guide if-mobile").text("OR You also can select in:"),
+					$('<div>').addClass("candidate-wrapper if-mobile d-flex"),
+				]),
 			]),
 		]);
 		$('body').append($main).children('main').not($main).remove();
@@ -73,13 +100,80 @@ window.sudokuMgr = new class SudokuManager{
 							height: boxSize,
 						}).appendTo($box));
 						const value = this._map[oy][ox][iy][ix];
-						if(value!=null){
-							$cell.addClass("is-locked").attr('data-value', value).text(value);
+						if(beLock && value!=null){
+							$('<span>').text(value).appendTo($cell.addClass("is-locked").attr('data-value', value));
 						}
 					}
 				}
 			}
 		}
+	}
+
+	_beginInput($cell){
+		($cell=>setTimeout(()=>{
+			$cell.addClass("accent");
+		},0))($cell);
+		const $box = $cell.parents('.box').eq(0);
+		const coords = [ $box.attr('data-y'), $box.attr('data-x'), $cell.attr('data-y'), $cell.attr('data-x') ];
+		const $layer = $('.input-layer');
+		$cell = $cell.clone().addClass("main-cell").attr({ 'data-x': null, 'data-y': null });
+		$layer.children('.input-layer--inside').prepend($cell).children('.cell').not($cell).remove();
+		// select candidates for mobile
+		const size = this._map.length;
+		const chars = new Array(Math.pow(size,2)).fill('\0').map((_,i)=>i.toString(36));
+		$layer.find('.candidate-wrapper').children().remove();
+		$layer.find('.candidate-wrapper').append(chars.map(char=>$('<div>').addClass("cell d-flex candidate").attr('data-value',char).text(char)));
+		$layer.find('.candidate-wrapper').prepend($('<div>').addClass("cell d-flex candidate").attr('data-value',String.fromCharCode(8)));
+		$layer.attr('target', coords.join(","));
+	}
+	_listenInput(keyCode){
+		let coords = $('.input-layer').attr('target');
+		if(!coords) return;
+		coords = coords.split(",");
+		const $cell = $(`.box[data-y="${coords[0]}"][data-x="${coords[1]}"] .cell[data-y="${coords[2]}"][data-x="${coords[3]}"]`);
+		const size = this._map.length;
+		const chars = new Array(Math.pow(size,2)).fill('\0').map((_,i)=>i.toString(36));
+		const input = [46,8].includes(keyCode) ? null : String.fromCharCode(keyCode).toLowerCase();
+		if(chars.includes(input) || input===null){
+			const valueBefore = $cell.attr('data-value');
+			if(input !== valueBefore){
+				// release incorrect effect of everycells affected by this cell
+				let conflicts = $cell.hasClass("is-incorrect") && valueBefore ? this._findConflicts(valueBefore, ...coords) : [];
+				$cell.removeClass("is-incorrect").attr('data-value', null).children('span').remove();
+				new this.CellInfo(...coords).setValue(null);
+				conflicts.forEach(cf=>{
+					if(0===this._findConflicts(valueBefore, cf.oy,cf.ox,cf.iy,cf.ix).length){
+						cf.$().removeClass("is-incorrect");
+					}
+				});
+				// set new value
+				const $value = chars.includes(input) && $('<span>').text(input).appendTo($cell);
+				getComputedStyle($cell[0]);
+				if($value){
+					$cell.attr('data-value', input);
+					new this.CellInfo(...coords).setValue(input);
+					const effectByValidation = ()=>{
+						$value.off('transitionend', effectByValidation);
+						conflicts = this._findConflicts(input, ...coords);
+						if(conflicts.length){
+							$cell.addClass("is-incorrect");
+							conflicts.map(cf=>cf.$()).forEach($cf=>{
+								$cf.not('.is-locked').addClass("is-incorrect");
+							});
+						}
+					}
+					$value.on('transitionend', effectByValidation);
+				}else{
+					$cell.removeClass("is-incorrect");
+				}
+			}
+			this._cancelInput();
+		}
+	}
+	_cancelInput(){
+		const $layer = $('.input-layer');
+		$layer.attr('target', null);
+		$('.cell.accent').removeClass("accent");
 	}
 
 	async generate(size){
@@ -175,6 +269,13 @@ window.sudokuMgr = new class SudokuManager{
 		}
 		return results;
 	}
+	_findConflicts(val, oy,ox,iy,ix){
+		return [].concat(...[
+			this._find(val, oy,ox,null,null),
+			this._find(val, oy,null,iy,null),
+			this._find(val, null,ox,null,ix),
+		]).filter(cf=>cf.oy!=oy||cf.ox!=ox||cf.iy!=iy||cf.ix!=ix);
+	}
 	_has(val, oy,ox,iy,ix){
 		return 0 < this._find(val, oy,ox,null,null, true).length ||
 			0 < this._find(val, oy,null,iy,null, true).length ||
@@ -185,11 +286,7 @@ window.sudokuMgr = new class SudokuManager{
 		const _run = async (cell, value, limitCounter)=>{
 			let valueBefore = cell.value;
 			cell.setValue(value);
-			let conflicts = [].concat(...[
-				this._find(cell.value, cell.oy,cell.ox,null,null),
-				this._find(cell.value, cell.oy,null,cell.iy,null),
-				this._find(cell.value, null,cell.ox,null,cell.ix),
-			]);
+			let conflicts = this._findConflicts(cell.value, cell.oy,cell.ox,cell.iy,cell.ix);
 			let hasConflict = conflicts.length;
 			while(hasConflict){
 				hasConflict = false;
@@ -345,6 +442,7 @@ window.sudokuMgr = new class SudokuManager{
 		}
 		return buff;
 	}
+
 	async _sleep(ms){
 		return await new Promise(resolve=>{
 			setTimeout(resolve, ms);
@@ -374,6 +472,10 @@ window.sudokuMgr = new class SudokuManager{
 			toString: function(){
 				const {oy,ox,iy,ix,value:val} = this;
 				return `${this.constructor.name}{[${[ox,oy]}][${[ix,iy]}]="${val}"}`;
+			},
+			$: function(){
+				const {oy,ox,iy,ix} = this;
+				return $(`.box[data-y="${oy}"][data-x="${ox}"] .cell[data-y="${iy}"][data-x="${ix}"]`);
 			},
 		});
 		return Object.assign(CellInfo,{
@@ -423,9 +525,10 @@ window.sudokuMgr = new class SudokuManager{
 			}
 		});
 	})(this, class CellInfo{
-		oy;ox;iy;ix;value;
+		oy;ox;iy;ix;_coords;value;
 		constructor(oy,ox,iy,ix, value){
 			Object.assign(this, {oy,ox,iy,ix,value});
+			this._coords = [oy,ox,iy,ox];
 			if(value===undefined) this.reload();
 		}
 	});
