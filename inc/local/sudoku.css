@@ -134,6 +134,11 @@
 	cursor: default;
 	box-shadow: 0 calc(var(--n-box-padding) / 2) var(--n-box-shadow) calc(var(--n-box-padding) / 4) var(--c-shadow);
 }
+@media (prefers-color-scheme: light) {
+	.input-layer .cell {
+		background-color: #FFF;
+	}
+}
 .input-layer .guide {
 	color: #EEE;
 }
