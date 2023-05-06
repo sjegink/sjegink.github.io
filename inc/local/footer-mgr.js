@@ -18,7 +18,7 @@ window.footerMgr = new class FooterManager{
 			label: "Search",
 			pageName: "search",
 		},{
-			label: "SUDOKU",
+			label: "Sudoku",
 			pageName: "sudoku",
 		}].map(menuItemInfo=>{
 			let isSelected = PAGENAME_CURRENT == menuItemInfo.pageName;

@@ -19,6 +19,23 @@
 	}
 }
 
+.x_pannel {
+	margin: 0 auto;
+	width: var(--n-board-size);
+	padding: calc(var(--n-board-padding) / 2);
+	display: flex;
+}
+.x_pannel > * {
+	margin-left: var(--n-board-padding);
+	height: 24px;
+	font-size: 14px;
+	background-color: inherit;
+	color: inherit;
+}
+.x_pannel > *:first-child {
+	margin-left: auto;
+}
+
 .x_board {
 	width: var(--n-board-size);
 	height: var(--n-board-size);

@@ -6,6 +6,10 @@ body { font-family:'Arial'; }
 		background-color:#333;
 		color: #DDD;
 	}
+	select option {
+		background-color: #333;
+		color: #DDD;
+	}
 }
 
 footer a {

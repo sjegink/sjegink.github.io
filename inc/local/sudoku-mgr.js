@@ -5,17 +5,12 @@ window.sudokuMgr = new class SudokuManager{
 	_map; _cssRule;
 
 	constructor(){
-		$(window)
-			.resize(()=>{
-				this.recalcScale();
-			});
 		$(document)
 			.ready(async ()=>{
 				this._initCss();
 				this._clear();
 				await this._sleep(0);
-				await this.generate(4);
-				this.recalcScale();
+				await this.generate($('#sel_size').val());
 				this._draw(true);
 			})
 			.on('mouseover', '.box .cell', (ev)=>{
@@ -57,10 +52,18 @@ window.sudokuMgr = new class SudokuManager{
 		}
 	}
 	_clear(){
-		const $main = $('<main>').addClass("my-auto d-flex").append([
-			$('<section>').addClass("x_board  mx-auto d-flex flex-wrap").append([
-				$('<p>').addClass("d-flex m-auto").text("Loading..."),
+		const $main = $('<main>').addClass("my-auto d-flex flex-column").append([
+			$('<div>').addClass("x_pannel").append([
+				$('<select>').attr('id','sel_size').append([3,4,5].map(v=>{
+					return $('<option>').val(v).text(v);
+				})),
+				$('<button>').addClass("btn_regen").text("regen").click(async ()=>{
+					this._showLoading();
+					await this.generate($('#sel_size').val());
+					this._draw(true);
+				}),
 			]),
+			$('<section>').addClass("x_board  mx-auto d-flex flex-wrap"),
 			$('<div>').addClass("input-layer d-flex").append([
 				$('<div>').addClass("input-layer--outside"),
 				$('<div>').addClass("input-layer--inside m-auto").append([
@@ -71,9 +74,6 @@ window.sudokuMgr = new class SudokuManager{
 			]),
 		]);
 		$('body').append($main).children('main').not($main).remove();
-	}
-	recalcScale(){
-		
 	}
 	_draw(beLock){
 		this._cssRule.style.setProperty('--n-game-size', this._map.length);
@@ -175,8 +175,14 @@ window.sudokuMgr = new class SudokuManager{
 		$layer.attr('target', null);
 		$('.cell.accent').removeClass("accent");
 	}
+	_showLoading(){
+		const $board = $('.x_board')
+		$board.children().remove();
+		$board.append($('<p>').addClass("loading d-flex m-auto").text("Loading..."));
+	}
 
 	async generate(size){
+		size = parseInt(size);
 		// #0 STAND-BY
 		if(size>6){
 			console.warn("Size must be less than or equal to 6");
