@@ -159,7 +159,7 @@
     width: 500px;
     height: 20px;
     border-radius: 10px 10px 0 0;
-    background: linear-gradient(90deg, #222 1px, #777 4px, #222 7px, #000 calc(100% - 8px), #333 calc(100% - 4px),black calc(100% - 2px))
+    background: linear-gradient(90deg, #222 1px, #777 4px, #222 7px, #111 calc(100% - 8px), #333 calc(100% - 4px),#111 calc(100% - 2px))
 }
 
 .clock .face {
@@ -220,11 +220,11 @@
 
 .clock .face span {
 	position:absolute;
-	background-color: #333;
+	background-color: #111;
 }
 .clock .face span.is-active {
 	background-color: #FF3;
-	box-shadow: 0 0 4px 2px #ffb7;
+	box-shadow: 0 0 4px 1px #ffb7;
 }
 
 .clock .face span:before,
