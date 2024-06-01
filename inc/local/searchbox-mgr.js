@@ -57,9 +57,9 @@ window.searchBoxMgr = new class SearchBoxManager{
 						// console.debug(`keyCode == ${ev.keyCode}`);
 				}
 			})
-			.on('keypress', '.x_search__input', ev=>{
+			.on('keydown', '.x_search__input', ev=>{
 				if(isMobile) return;
-				if(ev.keyCode===32){
+				if(ev.ctrlKey && ev.keyCode===32){
 					ev.preventDefault()
 					this.applyForQwerty($(ev.target), ev);
 				}
@@ -225,32 +225,32 @@ window.searchBoxMgr = new class SearchBoxManager{
 					"검색",
 				]));
 			case 0b01:
+				return writeFooters(buildFooterElements([
+					'Shift', 'Enter',
+				],[
+					"키로 ",
+					"영어사전 ",
+					"검색",
+				]));
+			case 0b10:
 				return writeFooters(
 					buildFooterElements([
-						'Shift', 'Enter',
+						'Ctrl', 'Enter',
 					],[
 						"키로 ",
-						"영어사전 ",
+						"새 창",
+						"에서 ",
+						"웹 ",
 						"검색",
 					]),
 					buildFooterElements([
-						'Shift', 'Space',
+						'Ctrl', 'Space',
 					],[
 						"키로 ",
 						"한타-영타 ",
 						"변환",
 					]),
 				);
-			case 0b10:
-				return writeFooters(buildFooterElements([
-					'Ctrl', 'Enter',
-				],[
-					"키로 ",
-					"새 창",
-					"에서 ",
-					"웹 ",
-					"검색",
-				]));
 			case 0b11:
 				return writeFooters(buildFooterElements([
 					'Ctrl', 'Shift', 'Enter',
