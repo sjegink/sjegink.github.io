@@ -57,18 +57,13 @@ window.searchBoxMgr = new class SearchBoxManager{
 						// console.debug(`keyCode == ${ev.keyCode}`);
 				}
 			})
-			.on('keydown', '.x_search__input', ev=>{
+			.on('keypress', '.x_search__input', ev=>{
 				if(isMobile) return;
-				this.applyForQwerty(ev);
+				if(ev.keyCode===32){
+					ev.preventDefault()
+					this.applyForQwerty($(ev.target), ev);
+				}
 			})
-			.on('focus change keydown keyup paste', '.x_search__input', ev=>{
-				if(isMobile) return;
-				this._checkValueChange(ev);
-			})
-			.on('blur', '.x_search__input', ev=>{
-				if(isMobile) return;
-				this.attachTooltipForQwerty(null);
-			});
 	}
 
 	_draw(){
@@ -96,43 +91,45 @@ window.searchBoxMgr = new class SearchBoxManager{
 		$('body').prepend($section);
 	};
 
-	onValueChange($inp, valueBefore, valueAfter){
-		if(/[a-z가-힣ㄱ-ㅣ]/i.test(valueAfter)){
-			this.attachTooltipForQwerty($inp);
-		}else{
-			this.attachTooltipForQwerty(nul);
+	applyForQwerty($inp, ev){
+		let {selectionStart:bPos,selectionEnd:ePos} = $inp[0];
+		let str = $inp.val().substring(bPos,ePos);
+		if(bPos===ePos){
+			str = $inp.val().substring(0, ePos);
 		}
-	};
-
-	attachTooltipForQwerty($inp){
-		const className = "x_search__tooltip";
-		const $tooltip = $(`.${className}`).length ?
-			$(`.${className}`) :
-			$('<div>').addClass(className);
-		$tooltip.children().remove();
-		if(!(($inp||null) instanceof jQuery)){
+		const lastIndexOfEn = str.match(/[a-z][^a-z]*$/)?.index ?? -1
+		const lastIndexOfKo = str.match(/[가-힣ㄱ-ㅣ][^가-힣ㄱ-ㅣ]*$/)?.index ?? -1
+		if(lastIndexOfEn === lastIndexOfKo){ // 같다는 건, 둘 다-1이라는 뜻
 			return;
 		}
-		const display = this._valueInputToDisplayString($inp);
-			
-		$tooltip.appendTo($inp.parent()).html(`
-			<div class="x_search__tooltip-visual d-flex">
-				<img class="x_search__tooltip-keyicon" src="./res/fg/keyboard_item_esc.svg">
-				<div class="x_search__tooltip-text">${display}</div>
-			</div>
-		`);
-	};
-
-	applyForQwerty(ev){
-		const $inp = $(ev.target);
-		if(ev.keyCode==27 && $inp.data('value-state')==="1"){
-			$inp.val(this._valueInputToDisplayString($inp));
-			const VI = $inp.data('value-input').match(/../g);
-			VI.forEach((pair,i)=>{
-				if(pair[0]) VI[i] = (3-Number(pair[0])) + pair[1];
-			});
-			$inp.data('value-input', VI.join(""));
-			this.attachTooltipForQwerty($inp);
+		if(lastIndexOfEn < lastIndexOfKo){ // 한글이 더 뒤에 있으면, 한글을 영어로
+			if(bPos===ePos){
+				// 직접 범위를 지정하지 않은 경우, 영어 부분은 이미 인지하고 입력했다고 판단하여 제외
+				str = str.replace(/^.*[a-z]/,'');
+				bPos = ePos - str.length;
+			}
+			let result = KorUtil.qwerty(str);
+			$inp.val($inp.val().substring(0, bPos) + result + $inp.val().substring(ePos));
+			if(str !== result){
+				$inp[0].setSelectionRange(bPos, ePos - str.length + result.length)
+			}
+		}
+		if(lastIndexOfKo < lastIndexOfEn){ // 영어가 더 뒤에 있으면, 영어를 한글로
+			if(bPos===ePos){
+				// 직접 범위를 지정하지 않은 경우, 한글 부분은 이미 인지하고 입력했다고 판단하여 제외
+				str = str.replace(/^.*[가-힣ㄱ-ㅣ]/,'')
+				bPos = ePos - str.length
+			}
+			let result = KorUtil.koreanify(str);
+			$inp.val($inp.val().substring(0, bPos) + result + $inp.val().substring(ePos));
+			if(str !== result){
+				$inp[0].setSelectionRange(bPos, ePos - str.length + result.length)
+			}
+		}
+		
+		return
+		if(ev.keyCode==27){ // TODO 발동조건
+			$inp.val(this._valueInputToDisplayString($inp)); // TODO 변환처리
 			ev.preventDefault();
 			ev.stopImmediatePropagation();
 		}
@@ -198,7 +195,13 @@ window.searchBoxMgr = new class SearchBoxManager{
 
 	_refreshFooter(ev){
 		ev = ev || {};
-		function writeFooter(keyLabels, strs){
+		function writeFooters(...$elementsList){
+			$('.x_search__footer_text').html("");
+			$elementsList.forEach($elements=>{
+				$('.x_search__footer_text').append($elements).append('<br>');
+			});
+		}
+		function buildFooterElements(keyLabels, strs){
 			const spans = [];
 			keyLabels.map((keyLabel,i)=>{
 				if(i) spans.push($('<span>').text("+ "));
@@ -207,30 +210,39 @@ window.searchBoxMgr = new class SearchBoxManager{
 			strs.map((str,i)=>{
 				spans.push($('<span>').text(str).addClass(i%2 ? "accent": ""));
 			});
-			$('.x_search__footer_text').html("").append(spans);
+			return spans;
 		}
 		switch(0
 			+( ev.ctrlKey ? 0b10 : 0)
 			+( ev.shiftKey ? 0b01 : 0)
 		){
 			case 0b00:
-				return writeFooter([
+				return writeFooters(buildFooterElements([
 					'Enter',
 				],[
 					"키로 ",
 					"웹 ",
 					"검색",
-				]);
+				]));
 			case 0b01:
-				return writeFooter([
-					'Shift', 'Enter',
-				],[
-					"키로 ",
-					"영어사전 ",
-					"검색",
-				]);
+				return writeFooters(
+					buildFooterElements([
+						'Shift', 'Enter',
+					],[
+						"키로 ",
+						"영어사전 ",
+						"검색",
+					]),
+					buildFooterElements([
+						'Shift', 'Space',
+					],[
+						"키로 ",
+						"한타-영타 ",
+						"변환",
+					]),
+				);
 			case 0b10:
-				return writeFooter([
+				return writeFooters(buildFooterElements([
 					'Ctrl', 'Enter',
 				],[
 					"키로 ",
@@ -238,9 +250,9 @@ window.searchBoxMgr = new class SearchBoxManager{
 					"에서 ",
 					"웹 ",
 					"검색",
-				]);
+				]));
 			case 0b11:
-				return writeFooter([
+				return writeFooters(buildFooterElements([
 					'Ctrl', 'Shift', 'Enter',
 				],[
 					"키로 ",
@@ -248,124 +260,7 @@ window.searchBoxMgr = new class SearchBoxManager{
 					"에서 ",
 					"영어사전 ",
 					"검색",
-				]);
+				]));
 		}
-	};
-
-	_checkValueChange__evQueue = [];
-	_checkValueChange(ev){
-		const KEY_TYPE = { KO:2, EN:1, ETC:0 };
-		console.log(ev);
-		if(ev != null){
-			const $inp = $(ev.target);
-			if(!$inp.val()){
-				$inp.data('value-before', "");
-				$inp.data('value-input', "");
-				$inp.data('value-state', null);
-				this.attachTooltipForQwerty(null);
-			}
-			console.log('♣ TRIGGED', $inp.val(), $inp.data('value-before'), $inp.data('value-input'), $inp.data('value-state'));
-			clearTimeout(this._checkValueChange__asyncReserved);
-			this._checkValueChange__evQueue.push(ev);
-			ev.value = ev;
-			this._checkValueChange__asyncReserved = setTimeout(()=>this._checkValueChange(null),10);
-			return;
-		}
-		if(!this._checkValueChange__evQueue.length){
-			$inp.data('value-input', "");
-			$inp.data('value-state', null);
-			this.attachTooltipForQwerty(null);
-		}else while(ev = this._checkValueChange__evQueue.shift()){
-			const $inp = $(ev.target);
-			const valueBefore = $inp.data('value-before');
-			console.log('♣ RECALLED', $inp.val(), $inp.data('value-before'), $inp.data('value-input'), $inp.data('value-state'));
-			if(!valueBefore) $inp.data('value-input', "");
-			const valueAfter = $inp.val();
-			if(!valueAfter){
-				$inp.data('value-input', "");
-				$inp.data('value-state', null);
-				this.attachTooltipForQwerty(null);
-			}else if($inp.data('value-state')==="-1"){
-				// value state = 0:빈칸 / 1:내용있음(빈칸에서앞만보고달려옴) / -1:역방향감지(유저가_상황인식했을거라)
-			}else{
-				const KEYS = { BS:0x08, ESC:0x1b, HOME:0x23,END:0x24, LF:0x25,UP:0x26,RT:0x27,DN:0x28 };
-				const KEYS_DISALLOWED = (({ESC,HOME,END,LF,UP,RT,DN})=>({ESC,HOME,END,LF,UP,RT,DN}))(KEYS); // those make assistant be disabled
-				let isValid = true;
-				let isChanged = valueBefore!==valueAfter;
-				isValid &= /^key/.test(ev.type) && !Object.values(KEYS_DISALLOWED).includes(ev.keyCode);
-				isValid &= ev.type!='change' || !isChanged;
-				if(!isValid){
-					$inp.data('value-state', "-1");
-					this.attachTooltipForQwerty(null);
-					return;
-				}
-				$inp.data('value-state', "1");
-				if(ev.keyCode===KEYS.BS && valueBefore){
-					let lengthShorter = valueBefore.length<valueAfter.length ? valueBefore.length : valueAfter.length;
-					let lengthCorrect;
-					for(let i=0; i<lengthShorter; i++){
-						lengthCorrect = i;
-						if(valueBefore.charAt(i) !== valueAfter.charAt(i)) break;
-					}
-					if(valueAfter.length < valueBefore.length){
-						const VAL_INPUT_AFTER = KorUtil.qwerty(valueAfter);
-						const LEN_INPUT_AFTER = VAL_INPUT_AFTER.length;
-						const LEN_INPUT_SHORTER = KorUtil.qwerty(valueBefore.substring(0, lengthShorter)).length;
-						const LEN_DATA_SHORTER = LEN_INPUT_SHORTER * 2;
-						let data = $inp.data('value-input');
-						data = data.substring(0, LEN_DATA_SHORTER);
-						let lastChar = valueAfter.replace(/[^가-힣ㄱ-ㅣa-z]*$/i,"").substr(-1);
-						let isLastKorean = KorUtil.isKorean(valueAfter.substr(-1));
-						let lastKeyType = /[a-z]/i.test(lastChar) ? KEY_TYPE.EN: isLastKorean ? KEY_TYPE.KO : KEY_TYPE.ETC;
-						lastChar = KorUtil.qwerty(lastChar).substr(-1)[ev.shiftKey?'toUpperCase':'toLowerCase']();
-						for(let i=LEN_INPUT_SHORTER; i<LEN_INPUT_AFTER; i++){
-							data += lastKeyType;
-							data += VAL_INPUT_AFTER.charAt(i)[ev.shiftKey?'toUpperCase':'toLowerCase']();
-							// Frankly, this speculation about IME modes is nonsense.
-							// But, probably, this logic will be executed with only one input.
-							// Therefore, No problem is expected.
-						}
-						$inp.data('value-before', valueAfter);
-						$inp.data('value-input', data);
-						this.onValueChange($inp, valueBefore, valueAfter);
-					}else{
-						// Infact, Users RARELY can make various key inputs be accumulated before this be executed.
-						// So, valueAfter must be shorter than valueBefore.
-						ev.keyCode = null;
-					}
-				}
-				if(ev.keyCode!==KEYS.BS && isChanged){
-					let lastChar = valueAfter.substr(-1);
-					let isLastKorean = KorUtil.isKorean(valueAfter.substr(-1));
-					let lastKeyType = /[a-z]/i.test(lastChar) ? KEY_TYPE.EN: isLastKorean ? KEY_TYPE.KO : KEY_TYPE.ETC;
-					lastChar = KorUtil.qwerty(lastChar).substr(-1)[ev.shiftKey?'toUpperCase':'toLowerCase']();
-					$inp.data('value-before', valueAfter);
-					$inp.data('value-input', ($inp.data('value-input')||"") + [
-						lastKeyType,
-						lastChar,
-					].join(""));
-					this.onValueChange($inp, valueBefore, valueAfter);
-				}
-			}
-		};
-	};
-
-	_valueInputToDisplayString($inp){
-		let display = "", koStack = "";
-		($inp.data('value-input')||"").match(/../g).forEach(([type,char])=>{
-			if(type==1){
-				koStack += char;
-			}else{
-				if(koStack){
-					display += KorUtil.koreanify(koStack);
-					koStack = "";
-				}
-				display += char;
-			}
-		});
-		if(koStack){
-			display += KorUtil.koreanify(koStack);
-		}
-		return display;
 	};
 };
