@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "clean": "del /q ..\\..\\exam\\*",
-    "build": "del /q ..\\..\\exam\\*  &&  next build && xcopy /E /y .\\out\\* ..\\..\\exam\\ && del /q .\\out",
-    "deploy": "del /q ..\\..\\exam\\* && xcopy /E /y .\\out\\* ..\\..\\exam\\",
+    "build": "del /q ..\\..\\exam\\*  &&  next build && xcopy /E /y .\\out\\* ..\\..\\exam\\ && del /q .\\out && ren ..\\..\\exam\\_next next",
     "start": "next start",
     "lint": "next lint"
   },
