@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "clean": "del /q ..\\..\\exam\\*",
-    "build": "del /q ..\\..\\exam\\*  &&  next build && xcopy /E /y .\\out\\* ..\\..\\exam\\ && del /q .\\out && ren ..\\..\\exam\\_next next",
+    "build": "del /q ..\\..\\exam\\*  &&  next build && xcopy /E /y .\\out\\* ..\\..\\exam\\ && del /q .\\out && node rename.js",
     "start": "next start",
     "lint": "next lint"
   },
