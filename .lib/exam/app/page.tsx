@@ -2,21 +2,29 @@
 
 import Header from "./components/header";
 import Main from "./components/main";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { setSeed } from "../lib/features/seedSlice";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 
 export default function Home() {
 
 	const searchParams = useSearchParams();
-	const router = useRouter();
+	const dispatch = useDispatch();
 
 	// 시드 확인
-	const nowSeed = Math.floor(Date.now()/3600000);
-	let seed = parseInt(searchParams.get('n') ?? '');
+	const nowSeed = Math.floor(Date.now() / 3600000);
+	let seed = parseInt(searchParams.get('n') ?? '0');
 	if (!seed || nowSeed < seed) {
-		const params = new URLSearchParams(searchParams.toString());
-		params.set('n', nowSeed.toString());
-		router.replace('?' + params.toString());
+		seed = nowSeed;
 	};
+	// 시드 주소 동기화
+	useEffect(()=>{
+		dispatch(setSeed(seed));
+		const params = new URLSearchParams(searchParams.toString());
+		params.set('n', seed.toString());
+		history.replaceState(history.state, '', '?' + params.toString());
+	},[])
 
 	return (
 		<div className="

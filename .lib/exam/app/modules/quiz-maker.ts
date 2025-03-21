@@ -3,9 +3,9 @@ import { ReactElement } from "react";
 
 export type Subject = 'pokemon';
 
-export default async (subject: Subject): Promise<QuizitemProps[]> => {
+export default async (subject: Subject, seed: number): Promise<QuizitemProps[]> => {
 	console.log("Make QuizList...");
-	return factories[subject]().then((quizdataList) => {
+	return factories[subject](seed).then((quizdataList) => {
 		return quizdataList.map((props, i) => Object.assign(props, {
 			sequenceNumber: i + 1,
 		}));
@@ -13,10 +13,9 @@ export default async (subject: Subject): Promise<QuizitemProps[]> => {
 }
 
 type QuizitemPropsEssential = Omit<QuizitemProps, 'sequenceNumber'>;
-const factories = {} as { [k in Subject]: () => Promise<QuizitemPropsEssential[]> };
-const _seed = parseInt(new URLSearchParams(location.search).get('n') ?? '0');
+const factories = {} as { [k in Subject]: (seed: number) => Promise<QuizitemPropsEssential[]> };
 
-factories.pokemon = async function () {
+factories.pokemon = async function (_seed) {
 	/** 교시에 따라 같은 문제가 유지될 수 있도록 */
 	function getRandom(min: number, max: number) {
 		const seed = (_seed + quizList.length) * (_seed - quizList.length);

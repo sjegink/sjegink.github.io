@@ -3,10 +3,13 @@
 import quizMaker from "app/modules/quiz-maker";
 import { useEffect, useState } from "react";
 import Quizitem, { QuizitemProps } from "./quizitem";
+import { useSelector } from "react-redux";
+import { State } from "../../lib/store";
 
 export default function Home() {
 
 	const [quizpropList, setQuizProplist] = useState<QuizitemProps[]>();
+	const seed = useSelector((state: State) => state.seed.value);
 
 	useEffect(() => {
 		onLoad();
@@ -27,7 +30,7 @@ export default function Home() {
 
 	let onLoad = async function () {
 		onLoad = async () => { };
-		setQuizProplist(await quizMaker('pokemon'));
+		setQuizProplist(await quizMaker('pokemon', seed));
 
 		onResize();
 	}

@@ -1,10 +1,14 @@
 'use client';
 
 import styled from "styled-components";
-
-const today = new Date(parseInt(new URLSearchParams(location.search).get('n') ?? '0') * 3600000);
+import { useSeedTimeSelector } from 'lib/features/seedSelect';
 
 export default function Header() {
+
+	const headingText = useSeedTimeSelector((t: number) => {
+		const today = new Date(t);
+		return t && `${today.getFullYear()}학년도 ${today.getMonth() + 1}월 ${today.getDate()}일` || '';
+	});
 
 	return (
 		<header className="
@@ -15,7 +19,7 @@ export default function Header() {
 		">
 			<div className="font-semibold">
 				<span className="whitespace-nowrap">
-					{`${today.getFullYear()}학년도 ${today.getMonth() + 1}월 ${today.getDate()}일`}
+					{headingText}
 				</span>
 				&nbsp;
 				<span className="whitespace-nowrap">
@@ -40,6 +44,12 @@ export default function Header() {
 const PeriodChip = (props: {
 	className?: string,
 }) => {
+	const text = useSeedTimeSelector((t: number) => {
+		const today = new Date(t);
+		return today.getHours() < 8
+			? `심야 ${(today.getHours() + 1)} 교시`
+			: `제 ${(today.getHours() - 8)} 교시`;
+	});
 	const classList: Array<string> = `${(props.className ?? '')}`.match(/\S+/g) ?? [];
 	return <div className={classList.concat([
 		'my-auto',
@@ -50,7 +60,7 @@ const PeriodChip = (props: {
 		border: '1px solid rgb(var(--foreground-rgb))',
 		padding: '2px .5rem',
 	}}>
-		제 {Math.max(0, today.getHours() - 8)} 교시
+		{text}
 	</div>
 }
 
