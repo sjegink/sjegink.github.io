@@ -2,9 +2,10 @@
 
 import styled from "styled-components";
 
-const today = new Date()
+const today = new Date(parseInt(new URLSearchParams(location.search).get('n') ?? '0') * 3600000);
 
 export default function Header() {
+
 	return (
 		<header className="
 			my-4
@@ -26,7 +27,7 @@ export default function Header() {
 				<h1 className="font-bold" style={{
 					fontSize: '250%',
 				}}>
-					{'무슨'} 영역
+					{'포켓몬'} 영역
 				</h1>
 				<PeriodChip className="ml-auto invisible" />
 			</div>

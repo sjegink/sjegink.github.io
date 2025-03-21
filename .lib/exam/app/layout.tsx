@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { useEffect } from 'react';
 import { Inter } from "next/font/google";
 import "./globals.css";
-import styled from "styled-components";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,7 +27,8 @@ export default function RootLayout({
 						// FIXME: 적절하지 않은 코딩기법
 						document.querySelector('meta[name="viewport"]')!.setAttribute('content', "width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover");
 						setTimeout(() => {
-							document.body.removeChild(document.querySelector('#script_metafixer')!);
+							const script = document.querySelector('#script_metafixer');
+							if (script?.parentNode) script.parentNode.removeChild(script);
 						}, 1000);
 					}})()`
 				}} />

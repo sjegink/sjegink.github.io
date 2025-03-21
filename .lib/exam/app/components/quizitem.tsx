@@ -1,20 +1,16 @@
 import { ReactElement } from "react";
-import QuizitemOption from './quizitem-option';
+import QuizitemOption, { QuizitemOptionProps } from './quizitem-option';
 
-export default function Quizitem(props: Readonly<{
+export type QuizitemProps = {
 	sequenceNumber: number;
 	question: string;
-	children: ReactElement<any, string>[],
+	options: string[];
+}
+
+export default function Quizitem(props: Readonly<QuizitemProps & {
+	children?: ReactElement<any, string>[],
 }>) {
-	const references: Array<ReactElement> = [];
-	const options: Array<ReactElement> = [];
-	for (const child of props.children) {
-		if (child.type === 'li') {
-			options.push(<QuizitemOption key={`option_${options.length+1}`} {...child.props}></QuizitemOption>);
-		} else {
-			references.push(child);
-		}
-	}
+	const options: Array<ReactElement> = props.options.map((text, i) => <QuizitemOption key={`option_${i + 1}`}>{text}</QuizitemOption>);
 	return (
 		<article className="quizitem
 			w-1/2
@@ -22,9 +18,9 @@ export default function Quizitem(props: Readonly<{
 			pt-4 px-4
 		">
 			<p className="mb-2">{props.sequenceNumber}. {props.question}</p>
-			{0 < references.length &&
+			{!!props.children?.length &&
 				<div className="reference flex items-center justify-center mb-2">
-					{references}
+					{props.children}
 				</div>
 			}
 			<ol className="mb-2">

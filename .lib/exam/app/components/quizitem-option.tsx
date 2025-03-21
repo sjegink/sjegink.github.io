@@ -1,7 +1,12 @@
 import { HTMLAttributes, MouseEvent } from "react";
 import styled from "styled-components";
 
-export default (props: HTMLAttributes<HTMLLIElement>) => {
+export type QuizitemOptionProps = HTMLAttributes<HTMLLIElement> | string;
+
+export default (props: QuizitemOptionProps) => {
+	if (typeof props === 'string') {
+		props = { children: props } as HTMLAttributes<HTMLLIElement>
+	}
 
 	const template = <Styled_li {...props} onClick={onClick} />
 

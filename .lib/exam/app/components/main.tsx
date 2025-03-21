@@ -1,14 +1,16 @@
 'use client';
 
-import Image from "next/image";
-import Quizitem from "./quizitem";
-import { useEffect } from "react";
+import quizMaker from "app/modules/quiz-maker";
+import { useEffect, useState } from "react";
+import Quizitem, { QuizitemProps } from "./quizitem";
 
 export default function Home() {
 
+	const [quizpropList, setQuizProplist] = useState<QuizitemProps[]>();
+
 	useEffect(() => {
+		onLoad();
 		// onResize
-		onResize();
 		window.addEventListener('resize', onResize);
 		return () => { window.removeEventListener('resize', onResize); }
 	}, []);
@@ -16,44 +18,45 @@ export default function Home() {
 	const template = (
 		<main className="flex flex-col flex-wrap">
 			{
-				new Array(10).fill(0).map((_, i) => i + 1).map(seq => (
-					<Quizitem key={`quizitem_${seq}`}
-						sequenceNumber={seq}
-						question="다음 중 ㅁㄴㅇㄹ에 대한 설명으로 옳지 않은 것을 고르시오."
-					>
-						<span>ㅇㅅㅇ</span>
-						<li>ㅁㅁㅁㅁ</li>
-						<li>ㅠㅠㅠㅠ</li>
-						<li>ㅊㅊㅊㅊ</li>
-						<li>ㅇㅇㅇㅇ</li>
-					</Quizitem>
+				quizpropList?.map((quizProp, i) => (
+					<Quizitem key={`quizitem_${i + 1}`} {...quizProp} />
 				))
 			}
 		</main>
 	);
 
+	let onLoad = async function () {
+		onLoad = async () => { };
+		setQuizProplist(await quizMaker('pokemon'));
+
+		onResize();
+	}
+	// }, [searchParams]);
+
+	/** 내용이 많은 경우, 2단 형태로 분할 */
 	function onResize() {
-		const isSmallView = (document.body.clientWidth < 768);
 		const quizitems: HTMLElement[] = Array.from(document.querySelectorAll('.quizitem'));
 		const container = quizitems?.[0]?.parentNode as HTMLElement;
-		const heightContainer = window.innerHeight - container.getBoundingClientRect().y;
-		const heightList = quizitems.map(el => el.getBoundingClientRect().height);
-		const heightTotal = heightList.reduce((acc: number, val: number) => acc + val);
-		const heightGapList = new Array<number>();
-		const isOverflowY = (heightContainer < heightTotal);
+		if (container == null) return;
 		let heightHalf = 0;
 		let i_divideAfter: number = -1;
+		const isSmallView = (document.body.clientWidth < 768);
 		if (isSmallView) {
 			null;
-		} else for (let i = 0; i < heightList.length - 1; i++) {
-			heightHalf += heightList[i];
-			heightGapList[i] = Math.abs(heightTotal - heightHalf - heightHalf);
-			if (i_divideAfter < 0 || heightGapList[i] < heightGapList[i_divideAfter]) {
-				i_divideAfter = i;
-			} else {
-				heightHalf -= heightList[i];
-				heightHalf = Math.max(heightHalf, heightTotal - heightHalf);
-				break;
+		} else {
+			const heightList = quizitems.map(el => el.getBoundingClientRect().height);
+			const heightTotal = heightList.reduce((acc: number, val: number) => acc + val);
+			const heightGapList = new Array<number>();
+			for (let i = 0; i < heightList.length - 1; i++) {
+				heightHalf += heightList[i];
+				heightGapList[i] = Math.abs(heightTotal - heightHalf - heightHalf);
+				if (i_divideAfter < 0 || heightGapList[i] < heightGapList[i_divideAfter]) {
+					i_divideAfter = i;
+				} else {
+					heightHalf -= heightList[i];
+					heightHalf = Math.max(heightHalf, heightTotal - heightHalf);
+					break;
+				}
 			}
 		}
 		if (0 <= i_divideAfter) {
