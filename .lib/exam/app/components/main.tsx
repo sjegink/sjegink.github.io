@@ -1,16 +1,23 @@
 'use client';
 
 import Image from "next/image";
-import QuizItem from "./quizitem";
+import Quizitem from "./quizitem";
 import { useEffect } from "react";
 
 export default function Home() {
+
+	useEffect(() => {
+		// onResize
+		onResize();
+		window.addEventListener('resize', onResize);
+		return () => { window.removeEventListener('resize', onResize); }
+	}, []);
 
 	const template = (
 		<main className="flex flex-col flex-wrap">
 			{
 				new Array(10).fill(0).map((_, i) => i + 1).map(seq => (
-					<QuizItem key={`quizitem_${seq}`}
+					<Quizitem key={`quizitem_${seq}`}
 						sequenceNumber={seq}
 						question="다음 중 ㅁㄴㅇㄹ에 대한 설명으로 옳지 않은 것을 고르시오."
 					>
@@ -19,17 +26,11 @@ export default function Home() {
 						<li>ㅠㅠㅠㅠ</li>
 						<li>ㅊㅊㅊㅊ</li>
 						<li>ㅇㅇㅇㅇ</li>
-					</QuizItem>
+					</Quizitem>
 				))
 			}
 		</main>
 	);
-
-	useEffect(() => {
-		onResize();
-		window.addEventListener('resize', onResize);
-		return () => { window.removeEventListener('resize', onResize); }
-	}, []);
 
 	function onResize() {
 		const isSmallView = (document.body.clientWidth < 768);

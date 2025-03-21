@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { useEffect } from 'react';
 import { Inter } from "next/font/google";
 import "./globals.css";
+import styled from "styled-components";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +19,7 @@ export default function RootLayout({
 	return (
 		<html lang="ko">
 			<body className={inter.className + " min-h-screen"} style={{
-				backgroundImage: "url('paper.jpg')",
+				background: "transparent url('paper.jpg') center center / cover no-repeat",
 			}}>
 				<div className="page paper-aspect-ratio mx-auto my-4">
 					{children}

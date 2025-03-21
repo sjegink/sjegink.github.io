@@ -18,15 +18,4 @@
 
 body {
 	color: rgb(var(--foreground-rgb));
-	background: transparent none center center / cover no-repeat;
-}
-
-.page {
-	height: calc(100vw * sqrt(2))
-}
-
-@layer utilities {
-	.text-balance {
-		text-wrap: balance;
-	}
 }

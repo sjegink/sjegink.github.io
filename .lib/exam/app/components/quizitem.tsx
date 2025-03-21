@@ -1,7 +1,7 @@
-import { DetailedHTMLProps, HTMLAttributes, LiHTMLAttributes, MouseEvent, ReactElement } from "react";
-import styled from 'styled-components';
+import { ReactElement } from "react";
+import QuizitemOption from './quizitem-option';
 
-export default function QuizItem(props: Readonly<{
+export default function Quizitem(props: Readonly<{
 	sequenceNumber: number;
 	question: string;
 	children: ReactElement<any, string>[],
@@ -10,7 +10,7 @@ export default function QuizItem(props: Readonly<{
 	const options: Array<ReactElement> = [];
 	for (const child of props.children) {
 		if (child.type === 'li') {
-			options.push(<OptionItem {...child.props}></OptionItem>);
+			options.push(<QuizitemOption key={`option_${options.length+1}`} {...child.props}></QuizitemOption>);
 		} else {
 			references.push(child);
 		}
@@ -32,43 +32,4 @@ export default function QuizItem(props: Readonly<{
 			</ol>
 		</article>
 	);
-}
-
-const OptionItem = (props: HTMLAttributes<HTMLLIElement>) => {
-
-	const Styled_li = styled.li`
-		position: relative;
-		&::before {
-			margin-right: 0.25rem;
-		}
-		&:nth-child(1)::before { content: "①"; }
-		&:nth-child(2)::before { content: "②"; }
-		&:nth-child(3)::before { content: "③"; }
-		&:nth-child(4)::before { content: "④"; }
-		&:nth-child(5)::before { content: "⑤"; }
-		&.selected::after {
-			content: '';
-			position: absolute;
-			bottom: 0.4rem;
-   			left: -0.1rem;
-			width: 1.5rem;
-			height: 1.5rem;
-			background: transparent url('check.svg') center center / contain no-repeat;
-		}
-	`;
-	const template = <Styled_li {...props} onClick={onClick} />
-
-	function onClick(ev: MouseEvent) {
-		const eOption = ev.currentTarget as HTMLLIElement;
-		const eParent = eOption.parentNode as HTMLOListElement;
-		eParent.querySelectorAll('li.selected').forEach(el => {
-			if (el !== eOption) {
-				el.classList.remove('selected');
-			}
-		});
-		eOption.classList.add('selected');
-	}
-
-	return template;
-
 }
