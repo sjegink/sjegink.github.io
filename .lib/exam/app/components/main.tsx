@@ -13,7 +13,13 @@ export default function Home() {
 					<QuizItem key={`quizitem_${seq}`}
 						sequenceNumber={seq}
 						question="다음 중 ㅁㄴㅇㄹ에 대한 설명으로 옳지 않은 것을 고르시오."
-					/>
+					>
+						<span>ㅇㅅㅇ</span>
+						<li>ㅁㅁㅁㅁ</li>
+						<li>ㅠㅠㅠㅠ</li>
+						<li>ㅊㅊㅊㅊ</li>
+						<li>ㅇㅇㅇㅇ</li>
+					</QuizItem>
 				))
 			}
 		</main>
