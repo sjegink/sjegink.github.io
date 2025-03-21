@@ -6,11 +6,11 @@ declare global {
 
 		// #region Named
 
-		interface NamedAPIResourceList {
+		interface NamedAPIResourceList<T = any> {
 			count: number;
 			next: string;
 			previous: string;
-			results: Array<NamedAPIResource>;
+			results: Array<NamedAPIResource<T>>;
 		}
 
 		// #region Unnamed
@@ -491,7 +491,7 @@ declare global {
 		interface Characteristic {
 			id: number;
 			gene_modulo: number;
-			possible_values: Array<integer>;
+			possible_values: Array<number>;
 			highest_stat: NamedAPIResource<Stat>;
 			descriptions: Array<Description>;
 		}
@@ -793,7 +793,7 @@ declare global {
 			id: number;
 			name: string;
 			damage_relations: TypeRelations;
-			past_damage_relations: Array<TypeRelationsPast<Type>>;
+			past_damage_relations: Array<TypeRelationsPast>;
 			game_indices: Array<GenerationGameIndex>;
 			generation: NamedAPIResource<Generation>;
 			move_damage_class: NamedAPIResource<MoveDamageClass>;
@@ -830,7 +830,9 @@ declare global {
 			names: Array<Name>;
 		}
 
-		interface APIResource { url: string; }
+		type LanguageName = 'ja-Hrkt' | 'roomaji' | 'ko' | 'zh-Hant' | 'fr' | 'de' | 'es' | 'it' | 'en' | 'ja' | 'zh-Hans';
+
+		interface APIResource<T = string> { url: string; }
 
 		interface Description {
 			description: string;
@@ -871,8 +873,10 @@ declare global {
 			language: NamedAPIResource<Language>;
 		}
 
-		interface NamedAPIResource {
-			name: string;
+		interface NamedAPIResource<T = any> {
+			name: T extends Language
+			? LanguageName
+			: string;
 			url: string;
 		}
 
