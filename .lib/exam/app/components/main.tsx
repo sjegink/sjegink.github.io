@@ -12,11 +12,14 @@ export default function Home() {
 	const seed = useSelector((state: State) => state.seed.value);
 
 	useEffect(() => {
-		onLoad();
 		// onResize
 		window.addEventListener('resize', onResize);
 		return () => { window.removeEventListener('resize', onResize); }
 	}, []);
+
+	useEffect(() => {
+		onLoad();
+	}, [seed]);
 
 	const template = (
 		<main className="flex flex-col flex-wrap">
@@ -29,7 +32,6 @@ export default function Home() {
 	);
 
 	let onLoad = async function () {
-		onLoad = async () => { };
 		setQuizProplist(await quizMaker('pokemon', seed));
 
 		onResize();
