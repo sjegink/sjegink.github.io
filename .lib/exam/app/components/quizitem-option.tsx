@@ -13,12 +13,16 @@ export default (props: QuizitemOptionProps) => {
 	function onClick(ev: MouseEvent) {
 		const eOption = ev.currentTarget as HTMLLIElement;
 		const eParent = eOption.parentNode as HTMLOListElement;
-		eParent.querySelectorAll('li.selected').forEach(el => {
-			if (el !== eOption) {
-				el.classList.remove('selected');
-			}
-		});
-		eOption.classList.add('selected');
+		if (eOption.classList.contains('selected')) {
+			eOption.classList.remove('selected');
+		} else {
+			eParent.querySelectorAll('li.selected').forEach(el => {
+				if (el !== eOption) {
+					el.classList.remove('selected');
+				}
+			});
+			eOption.classList.add('selected');
+		}
 	}
 
 	return template;
@@ -35,13 +39,26 @@ const Styled_li = styled.li`
 	&:nth-child(3)::before { content: "③"; }
 	&:nth-child(4)::before { content: "④"; }
 	&:nth-child(5)::before { content: "⑤"; }
-	&.selected::after {
-		content: '';
-		position: absolute;
-		bottom: 0.4rem;
-		left: -0.1rem;
-		width: 1.5rem;
-		height: 1.5rem;
-		background: transparent url('check.svg') center center / contain no-repeat;
+
+	cursor: pointer;
+	&:hover {
+		-webkit-text-stroke: .5px blue;
+	}
+
+	&.selected{
+		color: blue;
+		-webkit-text-stroke: .5px black;
+		&:hover {
+			-webkit-text-stroke-color: darkblue;
+		}
+		&::after {
+			content: '';
+			position: absolute;
+			bottom: 0.4rem;
+			left: -0.1rem;
+			width: 1.5rem;
+			height: 1.5rem;
+			background: transparent url('check.svg') center center / contain no-repeat;
+		}
 	}
 `;
