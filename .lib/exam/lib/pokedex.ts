@@ -3,6 +3,8 @@ import Pokedex from 'pokedex-promise-v2';
 const pokedex = new Pokedex();
 export default pokedex;
 
+export type TypeName = 'normal' | 'fighting' | 'flying' | 'poison' | 'ground' | 'rock' | 'bug' | 'ghost' | 'steel' | 'fire' | 'water' | 'grass' | 'electric' | 'psychic' | 'ice' | 'dragon' | 'dark' | 'fairy' | 'stellar';
+
 /**
  * ## choose lang
  */
@@ -15,9 +17,9 @@ export type LanguageName = 'ja-Hrkt' | 'roomaji' | 'ko' | 'zh-Hant' | 'fr' | 'de
 /**
  * ## convert #id to name
  */
-export async function convertIdToName(id: number): Promise<string>;
-export async function convertIdToName(ids: number[]): Promise<string[]>;
-export async function convertIdToName(idsOrId: number | number[]): Promise<string | string[]> {
+export async function convertPokemonIdToName(id: number): Promise<string>;
+export async function convertPokemonIdToName(ids: number[]): Promise<string[]>;
+export async function convertPokemonIdToName(idsOrId: number | number[]): Promise<string | string[]> {
 	const ids = [idsOrId].flat();
 	const names = await Promise.all(ids.map(async id => {
 		const data = await pokedex.getPokemonSpeciesByName(id);
