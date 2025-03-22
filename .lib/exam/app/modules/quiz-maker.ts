@@ -1,5 +1,5 @@
-import Quizitem, { type QuizitemProps } from "app/components/quizitem";
-import { ReactElement } from "react";
+import { type QuizitemProps } from "app/components/quizitem";
+import pokedex, { chooseLang } from '../../lib/pokedex';
 
 export type Subject = 'pokemon';
 
@@ -19,17 +19,20 @@ factories.pokemon = async function (_seed) {
 	/** 교시에 따라 같은 문제가 유지될 수 있도록 */
 	function getRandom(min: number, max: number) {
 		const seed = (_seed + quizList.length) * (_seed - quizList.length);
-		return Math.floor(seed % (max - min + 1) + min);
+		console.debug('_getRandom.seed_', { _seed, len: quizList.length, seed });
+		return seed % (max - min + 1) + min;
 	}
 	const maxIdByGen = [0, 151, 251, 386, 493, 649, 721, 809, 905, 1025];
 	const quizList = new Array<QuizitemPropsEssential>();
 	// 1. 
 	{
+		// prepare
 		const options = new Array<string>();
 		const quizitem: typeof quizList[number] = {
 			question: `다음 스타팅포켓몬 중 세대가 다른 것은?`,
 			options,
 		}
+		// lottery
 		const startings = [
 			[1, 4, 7], [152, 155, 158], [252, 255, 258],
 			[387, 390, 393], [495, 498, 501], [650, 653, 656],
@@ -39,13 +42,12 @@ factories.pokemon = async function (_seed) {
 		let j = Math.floor(getRandom(1, startings.length - 1));
 		if (i === j) j = 0;
 		const ids = Array.from(startings[i]);
-		ids.push(startings[j].sort(() => getRandom(-100,100))[0]);
+		ids.push(startings[j].sort(() => getRandom(-100, 100))[0]);
 		await Promise.all(ids.map(async id => {
-			const data: PokeAPI.PokemonSpecies = await fetchData(`https://pokeapi.co/api/v2/pokemon-species/${id}`);
-			options.push(data.names
-				.filter((nameData: PokeAPI.Name) => /^ko\b/.test(nameData.language.name))[0]
-				?.name ?? data.name);
+			const data = await pokedex.getPokemonSpeciesByName(id);
+			options.push(chooseLang(data.names, 'ko', data.name));
 		}));
+		// return
 		options.sort(() => Math.random() - .5);
 		quizList.push(quizitem);
 	}
@@ -61,11 +63,3 @@ factories.pokemon = async function (_seed) {
 	return quizList;
 }
 
-async function fetchData(url: string) {
-	return fetch(url).then(response => {
-		if (!response.ok) {
-			throw new Error('Network response was not ok');
-		}
-		return response.json();
-	});
-}
