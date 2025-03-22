@@ -32,6 +32,7 @@ export default function Home() {
 	);
 
 	let onLoad = async function () {
+		if (!seed) return;
 		setQuizProplist(await quizMaker('pokemon', seed));
 
 		onResize();

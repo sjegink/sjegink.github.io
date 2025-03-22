@@ -9,7 +9,6 @@ export const seedSlice = createSlice({
 	},
 	reducers: {
 		setSeed: (state, action: SeedAction) => {
-			console.log('_setSeed_', state.value);
 			state.value = action.payload;
 		},
 	},
