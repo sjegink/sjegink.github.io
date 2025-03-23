@@ -9,24 +9,24 @@ const fs = require('fs').promises
  * 하는 스크립트를 실행하고자 함.
  */
 
-Promise.all([
-	// fs.rename(
-	// 	`${require.main.path}/../../exam/_next`,
-	// 	`${require.main.path}/../../exam/next`,
-	// ),
-	repathCascade(`${require.main.path}/../../exam`)
-]).then(()=>{
-	console.log("Done.")
-})
+Promise.resolve()
+	.then(() => fs.rm(`${require.main.path}/../../exam/next`, { recursive: true, force: true }))
+	.then(() => fs.rename(
+		`${require.main.path}/../../exam/_next`,
+		`${require.main.path}/../../exam/next`,
+	))
+	.then(() => repathCascade(`${require.main.path}/../../exam`))
+	.then(() => console.log("Done."));
 
-async function repathCascade(dirName){
+async function repathCascade(dirName) {
 	const entryNames = await fs.readdir(dirName)
-	await Promise.all(entryNames.map(async entryName=>{
+	await Promise.all(entryNames.map(async entryName => {
 		const entryPath = `${dirName}/${entryName}`
 		const stat = await fs.stat(entryPath)
-		if(stat.isDirectory()){
+		if (stat.isDirectory()) {
 			await repathCascade(entryPath)
-		}else if(/\.(js|css|html?)$/.test(entryName)){
+		} else if (/\.(js|css|html?)$/.test(entryName)) {
+			// 파일 소스 조작
 			let text = await fs.readFile(entryPath, 'utf-8')
 			text = text.replace(/(?<=[\\/'"`])_next(?=[\\/])/g, 'next')
 			await fs.writeFile(entryPath, text, 'utf-8')
