@@ -14,6 +14,7 @@ export default async (subject: Subject, seed: number): Promise<QuizitemProps[]> 
 }
 
 type QuizitemPropsEssential = Omit<QuizitemProps, 'sequenceNumber'>;
+type IndexNumber = 0 | 1 | 2 | 3;
 const factories = {} as { [k in Subject]: (seed: number) => Promise<QuizitemPropsEssential[]> };
 
 factories.pokemon = async function (_seed) {
@@ -125,13 +126,13 @@ factories.pokemon = async function (_seed) {
 		fillRandomIds(ids);
 		// evaluate
 		const list = await Promise.all(ids.map(id => pokedex.getPokemonByName(id)));
-		const typeHavings: Partial<Record<TypeName, (0 | 1 | 2 | 3)[]>> = {};
+		const typeHavings: Partial<Record<TypeName, IndexNumber[]>> = {};
 		for (let i = 0; i < list.length; i++) {
 			const data = list[i];
 			data.types.forEach(typeData => {
 				const typeName = typeData.type.name as TypeName;
 				typeHavings[typeName] ??= [];
-				typeHavings[typeName].push(i);
+				typeHavings[typeName].push(i as IndexNumber);
 			});
 		}
 		const typeNames_3Have = Object.entries(typeHavings).reduce((typeNames, [typeName, idxs]) => {
@@ -166,7 +167,7 @@ factories.pokemon = async function (_seed) {
 			for (const typeName of allTypeNames.sort(() => Math.random() - .5)) {
 				if (itsTypeNames.includes(typeName)) continue;
 				typeNames.push(typeName);
-				if(4 <= typeNames.length) break;
+				if (4 <= typeNames.length) break;
 			}
 			options.push(...await Promise.all(typeNames.map(async typeName => chooseLang((await pokedex.getTypeByName(typeName)).names, 'ko'))));
 		}
