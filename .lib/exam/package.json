@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "clean": "del /q ..\\..\\exam\\*",
-    "build": "del /q ..\\..\\exam\\*  &&  next build && xcopy /E /y .\\out\\* ..\\..\\exam\\ && del /q .\\out && node rename.js",
+    "clear": "del ..\\..\\exam\\*",
+    "build": "npm run clear  &  next build  &&  npm run _move",
+    "_move": "xcopy /E /y .\\out\\* ..\\..\\exam\\  &&  del /q .\\out  &&  node rename.js",
     "start": "next start",
     "lint": "next lint"
   },

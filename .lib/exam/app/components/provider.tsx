@@ -3,6 +3,8 @@
 import store from "../../lib/store";
 import { Provider } from "react-redux";
 
-export default (props: {
+export default function StoreProvider(props: {
 	children: React.ReactNode;
-}) => <Provider store={store}>{props.children}</Provider>
+}) {
+	return <Provider store={store}>{props.children}</Provider>;
+}

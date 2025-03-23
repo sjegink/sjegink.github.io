@@ -1,5 +1,6 @@
 import { ReactElement } from "react";
 import QuizitemOption, { QuizitemOptionProps } from './quizitem-option';
+import Image from "next/image";
 
 export type QuizitemProps = {
 	sequenceNumber: number;
@@ -23,7 +24,7 @@ export default function Quizitem(props: Readonly<QuizitemProps>) {
 				<div className="reference flex items-center justify-center mb-2">
 					{['image', 'image.blind'].includes(props.reference.type) &&
 						<div className="w-full aspect-2/1 pointer-events-none" style={{ userSelect: 'none' }}>
-							<img src={props.reference.url} style={{ filter: props.reference.type === 'image.blind' ? 'brightness(0)' : '' }} />
+							<img src={props.reference.url} alt={props.reference.url} style={{ filter: props.reference.type === 'image.blind' ? 'brightness(0)' : '' }} />
 						</div>
 					}
 				</div>

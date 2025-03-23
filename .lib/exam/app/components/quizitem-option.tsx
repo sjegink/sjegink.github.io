@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 export type QuizitemOptionProps = HTMLAttributes<HTMLLIElement> | string;
 
-export default (props: QuizitemOptionProps) => {
+export default function QuizitemOption(props: QuizitemOptionProps) {
 	if (typeof props === 'string') {
 		props = { children: props } as HTMLAttributes<HTMLLIElement>
 	}

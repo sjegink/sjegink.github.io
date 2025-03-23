@@ -4,7 +4,7 @@ import PokeAPI from "pokedex-promise-v2";
 
 export type Subject = 'pokemon';
 
-export default async (subject: Subject, seed: number): Promise<QuizitemProps[]> => {
+export default async function quizMaker (subject: Subject, seed: number): Promise<QuizitemProps[]> {
 	console.log("Make QuizList...");
 	return factories[subject](seed).then((quizdataList) => {
 		return quizdataList.map((props, i) => Object.assign(props, {

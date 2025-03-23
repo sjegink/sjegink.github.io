@@ -19,12 +19,12 @@ export default function Home() {
 		seed = nowSeed;
 	};
 	// 시드 주소 동기화
-	useEffect(()=>{
+	useEffect(() => {
 		dispatch(setSeed(seed));
 		const params = new URLSearchParams(searchParams.toString());
 		params.set('n', seed.toString());
 		history.replaceState(history.state, '', '?' + params.toString());
-	},[])
+	}, [dispatch, searchParams, seed]);
 
 	return (
 		<div className="
