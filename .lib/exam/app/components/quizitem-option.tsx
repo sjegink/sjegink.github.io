@@ -28,7 +28,7 @@ export default function QuizitemOption(props: QuizitemOptionProps) {
 				{...props.index === 0 && { href: "#", tabIndex: 1000 + props.sequenceNumber }}
 				{...{ className }}
 				onClick={onClick}
-			>{props.children}</a>
+			>{String.fromCharCode('①'.charCodeAt(0) + props.index)} {props.children}</a>
 		</Styled_li>
 	);
 
@@ -43,30 +43,32 @@ export default function QuizitemOption(props: QuizitemOptionProps) {
 const Styled_li = styled.li`
 	> a {
 		position: relative;
-		&::before {
-			margin-right: 0.25rem;
-		}
 	}
-	&:nth-child(1) > a::before { content: "①"; }
-	&:nth-child(2) > a::before { content: "②"; }
-	&:nth-child(3) > a::before { content: "③"; }
-	&:nth-child(4) > a::before { content: "④"; }
-	&:nth-child(5) > a::before { content: "⑤"; }
 
 	> a {
 		cursor: pointer;
 		outline: none;
-		&.focused {
-			color: blue;
-			-webkit-text-fill-color: rgb(var(--foreground-rgb));;
-			-webkit-text-stroke: .5px blue;
+		&.focused::before {
+			--hightlight-rgb: 191,255,0;
+			content: '';
+			position: absolute;
+			top: .1rem;
+			left: .5rem;
+			right: .25rem;
+			width: 100%;
+			height: .9rem;
+			border-radius: 30% 60% 60% 30%;
+			background: linear-gradient(90deg
+				, rgba(var(--hightlight-rgb), .0) 0%
+				, rgba(var(--hightlight-rgb), .5) 5%
+				, rgba(var(--hightlight-rgb), .4) 80%
+				, rgba(var(--hightlight-rgb), .0) 100%);
+			opacity: .75;
+			filter: blur(.5px);
 		}
 
 		&.selected{
-			color: blue;
-			-webkit-text-stroke: .5px black;
 			&.focused {
-				-webkit-text-stroke-color: red;
 			}
 			&::after {
 				content: '';
@@ -76,6 +78,8 @@ const Styled_li = styled.li`
 				width: 1.5rem;
 				height: 1.5rem;
 				background: transparent url('check.svg') center center / contain no-repeat;
+				opacity: .75;
+				filter: blur(.5px);
 			}
 		}
 	}
