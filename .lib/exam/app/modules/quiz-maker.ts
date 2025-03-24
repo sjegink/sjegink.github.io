@@ -1,6 +1,7 @@
 import { type QuizitemProps } from "app/components/quizitem";
 import pokedex, { chooseLang, convertPokemonIdToName, TypeName } from '../../lib/pokedex';
 import PokeAPI from "pokedex-promise-v2";
+import { IndexNumber } from "lib/features/choiceSlice";
 
 export type Subject = 'pokemon';
 
@@ -14,7 +15,6 @@ export default async function quizMaker (subject: Subject, seed: number): Promis
 }
 
 type QuizitemPropsEssential = Omit<QuizitemProps, 'sequenceNumber'>;
-type IndexNumber = 0 | 1 | 2 | 3;
 const factories = {} as { [k in Subject]: (seed: number) => Promise<QuizitemPropsEssential[]> };
 
 factories.pokemon = async function (_seed) {

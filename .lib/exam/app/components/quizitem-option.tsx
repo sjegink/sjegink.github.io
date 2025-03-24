@@ -1,32 +1,39 @@
-import { HTMLAttributes, MouseEvent } from "react";
+import { IndexNumber } from "lib/features/choiceSlice";
+import { HTMLAttributes } from "react";
+import clsx from 'clsx';
 import styled from "styled-components";
+import { useSelector } from "react-redux";
+import { State } from "lib/store";
 
-export type QuizitemOptionProps = HTMLAttributes<HTMLAnchorElement> | string;
+export type QuizitemOptionProps = {
+	sequenceNumber: number;
+	index: IndexNumber;
+	children: React.ReactNode;
+};
 
 export default function QuizitemOption(props: QuizitemOptionProps) {
-	if (typeof props === 'string') {
-		props = { children: props } as HTMLAttributes<HTMLAnchorElement>
-	}
+
+	const className = useSelector((state: State) => {
+		return clsx(
+			props.sequenceNumber === state.focus.sequenceNumber && props.index === state.focus.index
+			&& 'focused',
+			state.choice.value[props.sequenceNumber] === props.index
+			&& 'selected',
+		)
+	});
 
 	const template = (
 		<Styled_li>
-			<a {...props} onClick={onClick} />
+			<a
+				{...props.index === 0 && { href: "#", tabIndex: 1000 + props.sequenceNumber }}
+				{...{ className }}
+				onClick={onClick}
+			>{props.children}</a>
 		</Styled_li>
-	)
+	);
 
-	function onClick(ev: MouseEvent) {
-		const eOption = ev.currentTarget as HTMLLIElement;
-		const eParent = eOption.parentNode as HTMLOListElement;
-		if (eOption.classList.contains('selected')) {
-			eOption.classList.remove('selected');
-		} else {
-			eParent.querySelectorAll('li.selected').forEach(el => {
-				if (el !== eOption) {
-					el.classList.remove('selected');
-				}
-			});
-			eOption.classList.add('selected');
-		}
+	function onClick(ev: React.MouseEvent) {
+		ev.preventDefault();
 	}
 
 	return template;
@@ -48,15 +55,18 @@ const Styled_li = styled.li`
 
 	> a {
 		cursor: pointer;
-		&:hover {
+		outline: none;
+		&.focused {
+			color: blue;
+			-webkit-text-fill-color: rgb(var(--foreground-rgb));;
 			-webkit-text-stroke: .5px blue;
 		}
 
 		&.selected{
 			color: blue;
 			-webkit-text-stroke: .5px black;
-			&:hover {
-				-webkit-text-stroke-color: darkblue;
+			&.focused {
+				-webkit-text-stroke-color: red;
 			}
 			&::after {
 				content: '';
