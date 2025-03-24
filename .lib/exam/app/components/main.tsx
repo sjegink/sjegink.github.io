@@ -69,7 +69,7 @@ function _onResize() {
 		}
 	}
 	if (0 <= i_divideAfter) {
-		container.style.height = heightHalf.toFixed(0) + 'px';
+		container.style.height = Math.ceil(heightHalf).toFixed(0) + 'px';
 	} else {
 		container.style.height = '';
 	}
