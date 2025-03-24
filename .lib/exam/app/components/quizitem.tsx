@@ -33,7 +33,7 @@ export default function Quizitem(props: Readonly<QuizitemProps>) {
 			max-md:w-full
 			pt-4 px-4
 		"
-			onKeyDown={onKey}
+			onKeyDown={onKey} onMouseMove={onHover}
 			onFocus={onFocus} onBlur={onBlur}
 			onClick={onClick}
 		>
@@ -72,6 +72,12 @@ export default function Quizitem(props: Readonly<QuizitemProps>) {
 		}
 	}
 
+	function onHover(ev: React.MouseEvent) {
+		if (ev.target instanceof HTMLAnchorElement) {
+			focus(getIndex(ev.target));
+		}
+	}
+
 	function onKey(ev: React.KeyboardEvent) {
 		let i = focusedIndex;
 		switch (ev.key) {
@@ -98,6 +104,9 @@ export default function Quizitem(props: Readonly<QuizitemProps>) {
 			Math.min(3,
 				i + delta
 			)) as BlurableIndexNumber;
+		focus(i);
+	}
+	function focus(i: BlurableIndexNumber) {
 		dispatch(setFocus({
 			sequenceNumber: props.sequenceNumber,
 			answerIndex: i,
@@ -118,7 +127,6 @@ export default function Quizitem(props: Readonly<QuizitemProps>) {
 	function onBlur(ev: React.FocusEvent) {
 		if (ev.target instanceof HTMLAnchorElement) {
 			const i = getIndex(ev.target);
-			console.debug({ focusedIndex });
 			if (i === focusedIndex) {
 				dispatch(setFocus({
 					sequenceNumber: props.sequenceNumber,
