@@ -19,9 +19,9 @@ export default function RootLayout({
 	return (
 		<html lang="ko">
 			<body className={inter.className + " min-h-screen"} style={{
-				background: "transparent url('paper.jpg') center center / cover no-repeat",
+				background: "transparent url('paper.jpg') center top repeat",
 			}}>
-				<div className="page paper-aspect-ratio mx-auto my-4">
+				<div className="page opacity-90 mx-auto my-4">
 					<Provider>
 						<Suspense>{children}</Suspense>
 					</Provider>
