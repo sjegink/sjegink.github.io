@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { setSeed } from "../lib/features/seedSlice";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import AnswerSheet from "./components/answer-sheet";
 
 export default function Home() {
 
@@ -36,6 +37,7 @@ export default function Home() {
 			}}>
 			<Header />
 			<Main />
+			<AnswerSheet />
 		</div>
 	);
 }
