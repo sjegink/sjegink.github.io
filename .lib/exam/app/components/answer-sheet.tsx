@@ -25,10 +25,6 @@ export default function AnswerSheet() {
 	return (
 		<Styled_div ref={refSelf} className="fixed top-0 left-0 drop-shadow-md"
 			style={{ transform: translate }}
-			onDragStart={onDragStart}
-			onDrag={onDrag}
-			onDragExit={onDragLeave}
-			onDragEnd={onDragLeave}
 		>
 			<img className="bg w-full" src="omr.jpg" />
 			<div className="fg absolute" style={{ inset: 0 }}></div>
@@ -37,46 +33,49 @@ export default function AnswerSheet() {
 
 	function addEventListeners() {
 		window.addEventListener('resize', onResize);
-		refSelf.current!.addEventListener('mousedown', onDragStart);
-		document.addEventListener('mousemove', onDrag);
-		document.addEventListener('mouseup', onDragEnd);
-		document.addEventListener('mouseout', onDragLeave);
+		refSelf.current!.addEventListener('pointerdown', onDragStart);
+		document.addEventListener('pointermove', onDrag);
+		document.addEventListener('pointerup', onDragEnd);
+		document.addEventListener('touchmove', onScroll, { passive: false });
 	}
 	function removeEventListeners() {
 		window.removeEventListener('resize', onResize);
-		refSelf.current!.removeEventListener('mousedown', onDragStart);
-		document.removeEventListener('mousemove', onDrag);
-		document.removeEventListener('mouseup', onDragEnd);
-		document.removeEventListener('mouseout', onDragLeave);
+		refSelf.current!.removeEventListener('pointerdown', onDragStart);
+		document.removeEventListener('pointermove', onDrag);
+		document.removeEventListener('pointerup', onDragEnd);
+		document.removeEventListener('touchmove', onScroll);
 	}
 
-	function onDragStart(ev: React.DragEvent | MouseEvent) {
-		ev.preventDefault();
-		pointTemp = [
-			ev.pageX - pointDiv[0],
-			ev.pageY - pointDiv[1],
-		];
+	function onDragStart(ev: PointerEvent) {
+		console.debug('50 start', ev);
+		if (refSelf.current!.contains(ev.target as HTMLElement)) {
+			refSelf.current!.setPointerCapture(ev.pointerId);
+			pointTemp = [
+				ev.clientX - pointDiv[0],
+				ev.clientY - pointDiv[1],
+			];
+		}
 	}
-	function onDrag(ev: React.DragEvent | MouseEvent) {
+	function onDrag(ev: PointerEvent) {
 		if (pointTemp) {
 			const [x, y]: Point2D = [
-				ev.pageX - pointTemp[0],
-				ev.pageY - pointTemp[1],
+				ev.clientX - pointTemp[0],
+				ev.clientY - pointTemp[1],
 			];
 			pointDiv = [x, y];
 			keepBoundary();
 			updateDivTranslate();
 		}
 	}
-	function onDragEnd(ev: React.DragEvent | MouseEvent) {
+	function onDragEnd(ev: MouseEvent) {
 		if (pointTemp) {
+			console.log(73, 'end', ev);
 			pointTemp = null;
 		}
 	}
-	function onDragLeave(ev: React.DragEvent | MouseEvent) {
-		const eHtml = document.body.parentNode as HTMLElement;
-		if (eHtml === ev.relatedTarget) {
-			onDragEnd(ev)
+	function onScroll(ev: Event) {
+		if (pointTemp) {
+			ev.preventDefault();
 		}
 	}
 
@@ -87,8 +86,8 @@ export default function AnswerSheet() {
 
 	function keepBoundary() {
 		let [x, y] = pointDiv;
-		const LIMIT_L = window.innerWidth * -0.2;
-		const LIMIT_R = window.innerWidth * 1.2;
+		const LIMIT_L = window.innerWidth * -0.45 + 30;
+		const LIMIT_R = window.innerWidth * 1.45 - 30;
 		const LIMIT_T = window.innerHeight * -0.2;
 		const LIMIT_B = window.innerHeight * 1.2;
 		x = Math.max(LIMIT_L, Math.min(LIMIT_R, x));
@@ -102,7 +101,7 @@ export default function AnswerSheet() {
 }
 
 const Styled_div = styled.div`
-	width: 45rem;
+	width: 90vw;
 	cursor: move;
 	> * {
 		transform: translate(-50%, -50%);
