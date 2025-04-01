@@ -1,6 +1,5 @@
 import { type QuizitemProps } from "app/components/quizitem";
 import pokedex, { chooseLang, convertPokemonIdToName, TypeName } from '../../lib/pokedex';
-import PokeAPI from "pokedex-promise-v2";
 import { IndexNumber } from "lib/features/choiceSlice";
 
 export type Subject = 'pokemon';

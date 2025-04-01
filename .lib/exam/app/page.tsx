@@ -37,7 +37,9 @@ export default function Home() {
 			}}>
 			<Header />
 			<Main />
-			<AnswerSheet />
+			<div className="overlays">
+				<AnswerSheet />
+			</div>
 		</div>
 	);
 }
