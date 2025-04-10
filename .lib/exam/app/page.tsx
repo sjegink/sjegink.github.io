@@ -1,17 +1,19 @@
 'use client';
 
-import Header from "./components/header";
-import Main from "./components/main";
+import Header from "../lib/components/header";
+import Main from "./main";
 import { useSearchParams } from "next/navigation";
 import { setSeed } from "../lib/features/seedSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import AnswerSheet from "./components/answer-sheet";
+import AnswerSheet from "../lib/components/answer-sheet";
+import ScoreLayer from "lib/components/Score-layer";
 
 export default function Home() {
 
 	const searchParams = useSearchParams();
 	const dispatch = useDispatch();
+	const [isResult, setBeResult] = useState<boolean>(false);
 
 	// 시드 확인
 	const nowSeed = Math.floor(Date.now() / 3600000);
@@ -27,6 +29,19 @@ export default function Home() {
 		history.replaceState(history.state, '', '?' + params.toString());
 	}, [dispatch, searchParams, seed]);
 
+	useEffect(() => {
+		// 결과 여부
+		onHashChange();
+		window.addEventListener('hashchange', onHashChange);
+		return () => {
+			window.removeEventListener('hashchange', onHashChange)
+		}
+	}, [onHashChange]);
+
+	function onHashChange() {
+		setBeResult(location.hash === '#result');
+	}
+
 	return (
 		<div className="
 			min-h-screen
@@ -38,7 +53,10 @@ export default function Home() {
 			<Header />
 			<Main />
 			<div className="overlays">
-				<AnswerSheet />
+				{isResult
+					? <ScoreLayer />
+					: <AnswerSheet />
+				}
 			</div>
 		</div>
 	);

@@ -1,30 +1,47 @@
 'use client';
 
-import quizMaker from "app/modules/quiz-maker";
+import quizMaker from "../lib/modules/quiz-maker";
 import { useCallback, useEffect, useState } from "react";
-import Quizitem, { QuizitemProps } from "./quizitem";
-import { useSelector } from "react-redux";
-import { State } from "../../lib/store";
+import Quizitem, { QuizitemProps } from "../lib/components/quizitem";
+import { useDispatch, useSelector } from "react-redux";
+import { State } from "../lib/store";
+import { setCorrectAnswer } from "lib/features/correctAnswerSlice";
+import { IndexNumber } from "lib/features/choiceSlice";
 
 export default function Home() {
 
 	const [quizpropList, setQuizProplist] = useState<QuizitemProps[]>();
+	const dispatch = useDispatch();
 	const seed = useSelector((state: State) => state.seed.value);
 	const onResize = useCallback(_onResize, []);
 
 	useEffect(() => {
 		// onResize
 		window.addEventListener('resize', onResize);
-		return () => { window.removeEventListener('resize', onResize); }
+		return () => {
+			window.removeEventListener('resize', onResize);
+		}
 	}, [onResize]);
 
 	useEffect(() => {
 		// DrawBySeed
 		if (!seed) return;
-		Promise.resolve().then(async () => {
-			setQuizProplist(await quizMaker('pokemon', seed));
-			onResize();
-		});
+		quizMaker('pokemon', seed)
+			.then(quizList => {
+				quizList.forEach((qi, i) => {
+					const seq = i + 1;
+					const correctAnswerOption = qi.options[0];
+					qi.options.sort(() => Math.random() - .5);
+					const correctAnswerIndex = qi.options.indexOf(correctAnswerOption) as IndexNumber;
+					dispatch(setCorrectAnswer({
+						sequenceNumber: seq,
+						answerIndex: correctAnswerIndex
+					}));
+				});
+				return quizList;
+			})
+			.then(quizList => setQuizProplist(quizList))
+			.then(() => onResize());
 	}, [seed, onResize]);
 
 	const template = (
@@ -74,3 +91,4 @@ function _onResize() {
 		container.style.height = '';
 	}
 }
+

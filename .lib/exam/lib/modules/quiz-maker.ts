@@ -1,4 +1,4 @@
-import { type QuizitemProps } from "app/components/quizitem";
+import { type QuizitemProps } from '../components/quizitem';
 import pokedex, { chooseLang, convertPokemonIdToName, TypeName } from '../../lib/pokedex';
 import { IndexNumber } from "lib/features/choiceSlice";
 
@@ -6,6 +6,7 @@ export type Subject = 'pokemon';
 
 export default async function quizMaker (subject: Subject, seed: number): Promise<QuizitemProps[]> {
 	console.log("Make QuizList...");
+	// 반드시 정답은 options[0]에 담아 반환할 것!
 	return factories[subject](seed).then((quizdataList) => {
 		return quizdataList.map((props, i) => Object.assign(props, {
 			sequenceNumber: i + 1,
@@ -64,10 +65,9 @@ factories.pokemon = async function (_seed) {
 		let j = Math.floor(getRandom(1, startings.length - 1));
 		if (i === j) j = 0;
 		const ids = Array.from(startings[i]);
-		ids.push(startings[j].sort(() => getRandom(-100, 100))[0]);
+		ids.unshift(startings[j].sort(() => getRandom(-100, 100))[0]);
 		options.push(...await convertPokemonIdToName(ids));
 		// return
-		options.sort(() => Math.random() - .5);
 		quizList.push(quizitem);
 	}
 	//
@@ -88,7 +88,6 @@ factories.pokemon = async function (_seed) {
 		fillRandomIds(ids, (id) => (id < localIdMin || localIdMax < id));
 		options.push(...await convertPokemonIdToName(ids));
 		// return
-		options.sort(() => Math.random() - .5);
 		quizList.push(quizitem);
 	}
 	// 3.
@@ -109,7 +108,6 @@ factories.pokemon = async function (_seed) {
 		fillRandomIds(ids);
 		options.push(...await convertPokemonIdToName(ids));
 		// return
-		options.sort(() => Math.random() - .5);
 		quizList.push(quizitem);
 	}
 	// 4.
@@ -171,7 +169,6 @@ factories.pokemon = async function (_seed) {
 			options.push(...await Promise.all(typeNames.map(async typeName => chooseLang((await pokedex.getTypeByName(typeName)).names, 'ko'))));
 		}
 		// return
-		options.sort(() => Math.random() - .5);
 		return quizitem;
 	})());
 	// 5. ㅇ포켓몬이 가지고 있지 않는 스킬은
