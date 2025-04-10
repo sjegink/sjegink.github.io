@@ -86,8 +86,8 @@ export default function AnswerSheet() {
 						<table>
 							<thead>
 								<tr>
-									{new Array(7).fill(0).map(() => (
-										<th style={{ width: '14.286%' }} />
+									{new Array(7).fill(0).map((i) => (
+										<th key={i} style={{ width: '14.286%' }} />
 									))}
 								</tr>
 							</thead>
@@ -98,8 +98,8 @@ export default function AnswerSheet() {
 								<tr style={{ height: 'var(--marking-slot-height)' }}>
 									{[0, '-', 1, 2, 3, 4, 5].map((i) => (
 										typeof i === 'string'
-											? <th>─</th>
-											: <td align="center">{mycode.charAt(i) ?? false}</td>
+											? <th key={i}>─</th>
+											: <td key={i} align="center">{mycode.charAt(i) ?? false}</td>
 									))}
 								</tr>
 								<tr>
@@ -107,7 +107,7 @@ export default function AnswerSheet() {
 										<div className="inset-0 flex flex-wrap justify-between">
 											{new Array(10).fill(0).map((_, i) => (
 												[0, '─', 1, 2, 3, 4, 5].map((j) => (
-													<div className="flex items-center justify-center" style={{ width: calculate(.035) }}>
+													<div key={`${i}x${j}`} className="flex items-center justify-center" style={{ width: calculate(.035) }}>
 														{typeof j !== 'number'
 															? [1, 2, 3].includes(i) && <span style={{ height: '1em', lineHeight: '1em' }}>{j}</span>
 															: (j !== 0 || [1, 2, 3].includes(i)) &&
@@ -139,8 +139,8 @@ export default function AnswerSheet() {
 												'ⓧ': false,
 												'ⓛ': false,
 												'◑': false,
-											}).map(([markingExample, isCorrect]) => (
-												<div className="flex-grow-0 text-center" style={{ margin: `0 ${calculate(.005)}` }}>
+											}).map(([markingExample, isCorrect], i) => (
+												<div key={i} className="flex-grow-0 text-center" style={{ margin: `0 ${calculate(.005)}` }}>
 													{markingExample}<br />{isCorrect ? 'ㅇ' : '×'}
 												</div>
 											))
@@ -203,19 +203,19 @@ export default function AnswerSheet() {
 										</th>
 									</tr>
 									{new Array(4).fill(0).map((_, i) => i * 5 + 1).map(startNum => (
-										<tr>
+										<tr key={startNum}>
 											<th style={{ margin: '-1% 0' }}>
 												<div className="flex flex-col items-center justify-space" style={{ margin: '-.125em 0' }}>
 													{new Array(5).fill(0).map((_, i) => startNum + i).map(n => (
-														<span className="place-content-center" style={{ height: 'var(--marking-slot-height)' }}>{n}</span>
+														<span key={n} className="place-content-center" style={{ height: 'var(--marking-slot-height)' }}>{n}</span>
 													))}
 												</div>
 											</th>
 											<td>
 												<div className="flex flex-col items-center justify-space" style={{ margin: '-.125em 0' }}>
-													{new Array(5).fill(0).map((_, i) => startNum + i).map(n => <div className="flex">
+													{new Array(5).fill(0).map((_, i) => startNum + i).map(n => <div key={n} className="flex">
 														{new Array(4).fill(0).map((_, j) => j + 1).map(j => (
-															<MarkingSlot value={j} isActive={choosenIndexes[n] + 1 === j} />
+															<MarkingSlot key={j} value={j} isActive={choosenIndexes[n] + 1 === j} />
 														))}
 													</div>)}
 												</div>
@@ -450,10 +450,10 @@ function MarkingSlot(props: {
 		style={{ width: '1.75em' }} onClick={props.onClick}>{props.value}</span>
 }
 
-const SubmitZoneDiv = forwardRef((props: {
+const SubmitZoneDiv = forwardRef(function SubmitZoneDiv(props: {
 	isSubmitOver: boolean | undefined;
 	children: React.ReactNode;
-}, ref: React.ForwardedRef<HTMLDivElement>) => {
+}, ref: React.ForwardedRef<HTMLDivElement>) {
 	return <Styled_submitZone
 		ref={ref}
 		className={clsx([
