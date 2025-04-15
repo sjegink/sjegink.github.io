@@ -74,6 +74,7 @@ window.homeMgr = new class HomeManager {
 		const dMin = 1 - dt.getDay();
 		dt.setDate(dMin)
 		for (let d = dMin; d < dMax + 7; d++) {
+			if (dMax < d && 0 == dt.getDay()) break;
 			const $d = $('<div>').addClass("day").append([
 				$('<span>').html(dt.getDate()),
 				monthGot !== dt.getMonth() ? null :
@@ -88,7 +89,6 @@ window.homeMgr = new class HomeManager {
 				$d.addClass("today");
 			}
 			dt.setTime(dt.getTime() + 86400000);
-			if (dMax < d && 0 == dt.getDay()) break;
 		}
 		function watchText(ev) {
 			const $t = $(this), d = $t.parent().children('span').text();
