@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="50">
+	<polyline points="
+		25,0
+		0,25
+		25,50
+		225,50
+		250,25
+		225,0
+	" fill="currentColor" />
+</svg>

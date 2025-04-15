@@ -218,92 +218,87 @@
 	transform:translate(+475%,-50%);
 }
 
-.clock .face span {
+.clock .face .lamplet {
 	position:absolute;
-	background-color: #111;
+	color: #FF3;
 }
-.clock .face span.is-active {
+.clock .face .lamplet img {
+	position: absolute;
+	inset: 0;
+	width: 25px;
+	height: 5px;
+	filter: brightness(0) invert(1) brightness(0.5) sepia(999) saturate(2) invert(1) brightness(0.5) saturate(3) invert(1);
+}
+.clock .face .lamplet:not(.is-active) {
+	filter: saturate(0) brightness(.2);
+}
+.clock .face .lamplet.is-active:before {
+	/* TODO content: ''; */
 	background-color: #FF3;
 	box-shadow: 0 0 4px 1px #ffb7;
 }
 
-.clock .face span:before,
-.clock .face span:after{
-	content: '';
-	position: absolute;
-	width: 5px;
-	height: 5px;
-	background: inherit;
-	transform: rotate(45deg) scale(.8);
-}
-
-.clock .face span[stroke-type="horizontal"] {
-	width: 20px;
+.clock .face .lamplet[direction-type="horizontal"] {
+	width: 25px;
 	height: 5px;
 }
-.clock .face span[stroke-type="horizontal"]:before {
-	left:-2.5px;
-}
-.clock .face span[stroke-type="horizontal"]:after {
-	right:-2.5px;
-}
-
-.clock .face span[stroke-type="horizontal"][stroke-y="-"] {
+.clock .face .lamplet[direction-type="horizontal"][stroke-y="-"] {
 	top: 0px;
 	left: 50%;
 	transform:translate(-50%,0);
 }
-.clock .face span[stroke-type="horizontal"][stroke-y="0"] {
+.clock .face .lamplet[direction-type="horizontal"][stroke-y="0"] {
 	top: 50%;
 	left: 50%;
 	transform:translate(-50%,-50%);
 }
-.clock .face span[stroke-type="horizontal"][stroke-y="+"] {
+.clock .face .lamplet[direction-type="horizontal"][stroke-y="+"] {
 	bottom: 0;
 	left: 50%;
 	transform:translate(-50%,0);
 }
 
-.clock .face span[stroke-type="vertical"] {
+.clock .face .lamplet[direction-type="vertical"] {
 	width: 5px;
-	height: 20px;
+	height: 25px;
 }
-.clock .face span[stroke-type="vertical"]:not([stroke-x]) {
+.clock .face .lamplet[direction-type="vertical"] img {
+	transform: translate(-40%, 200%) rotate(90deg)
+}
+.clock .face .lamplet[direction-type="vertical"]:not([stroke-x]) {
 	height: 10px;
 }
-.clock .face span[stroke-type="vertical"]:before {
-	top:-2.5px;
-}
-.clock .face span[stroke-type="vertical"]:after {
-	bottom:-2.5px;
+.clock .face .lamplet[direction-type="vertical"]:not([stroke-x]) img {
+	width: 10px;
+	transform: translate(-40%, 50%) rotate(90deg)
 }
 
-.clock .face span[stroke-type="vertical"][stroke-y="-"]:not([stroke-x]) {
+.clock .face .lamplet[direction-type="vertical"][stroke-y="-"]:not([stroke-x]) {
 	top: 6px;
 	left: 50%;
 	transform:translate(-50%,0);
 }
-.clock .face span[stroke-type="vertical"][stroke-y="-"][stroke-x="-"] {
+.clock .face .lamplet[direction-type="vertical"][stroke-y="-"][stroke-x="-"] {
 	top: 6px;
 	left: 5px;
 	transform:translate(-50%,0);
 }
-.clock .face span[stroke-type="vertical"][stroke-y="-"][stroke-x="+"] {
+.clock .face .lamplet[direction-type="vertical"][stroke-y="-"][stroke-x="+"] {
 	top: 6px;
 	right: 5px;
 	transform:translate(50%,0);
 }
-.clock .face span[stroke-type="vertical"][stroke-y="+"]:not([stroke-x]) {
+.clock .face .lamplet[direction-type="vertical"][stroke-y="+"]:not([stroke-x]) {
 	bottom: 6px;
 	left: 50%;
 	transform:translate(-50%,0);
 }
-.clock .face span[stroke-type="vertical"][stroke-y="+"][stroke-x="-"] {
+.clock .face .lamplet[direction-type="vertical"][stroke-y="+"][stroke-x="-"] {
 	bottom: 6px;
 	left: 5px;
 	transform:translate(-50%,0);
 }
-.clock .face span[stroke-type="vertical"][stroke-y="+"][stroke-x="+"] {
+.clock .face .lamplet[direction-type="vertical"][stroke-y="+"][stroke-x="+"] {
 	bottom: 6px;
 	right: 5px;
 	transform:translate(50%,0);
