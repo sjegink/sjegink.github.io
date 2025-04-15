@@ -116,14 +116,14 @@ window.homeMgr = new class HomeManager {
 		const AttrName = "d-index";
 		const $d = $($(`div[${AttrName}="${i}"]`)[0] || $('<div>').attr(AttrName, i).append((
 			v === ":" ? [
-				[null, '-', "vertical"],
-				[null, '+', "vertical"],
+				[null, '-', null],
+				[null, '+', null],
 			] :
 				v === "'" ? [
-					[null, '-', "vertical"],
+					[null, '-', null],
 				] :
 					v === "." ? [
-						[null, '+', "vertical"],
+						[null, '+', null],
 					] :
 						[
 							['0', '-', "horizontal"],
