@@ -108,7 +108,7 @@ window.searchBoxMgr = new class SearchBoxManager{
 				str = str.replace(/^.*[a-z]/,'');
 				bPos = ePos - str.length;
 			}
-			let result = KorUtil.qwerty(str);
+			let result = korUtil.qwerty(str);
 			$inp.val($inp.val().substring(0, bPos) + result + $inp.val().substring(ePos));
 			if(str !== result){
 				$inp[0].setSelectionRange(bPos, ePos - str.length + result.length)
@@ -120,7 +120,7 @@ window.searchBoxMgr = new class SearchBoxManager{
 				str = str.replace(/^.*[가-힣ㄱ-ㅣ]/,'')
 				bPos = ePos - str.length
 			}
-			let result = KorUtil.koreanify(str);
+			let result = korUtil.koreanify(str);
 			$inp.val($inp.val().substring(0, bPos) + result + $inp.val().substring(ePos));
 			if(str !== result){
 				$inp[0].setSelectionRange(bPos, ePos - str.length + result.length)
